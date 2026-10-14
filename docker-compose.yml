@@ -1,0 +1,16 @@
+# Optional: a PostgreSQL 16 server for development, with the same credentials the API expects by default.
+# Skip this if PostgreSQL is already installed locally (see README).
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: duatangan
+      POSTGRES_PASSWORD: duatangan
+      POSTGRES_DB: duatangan
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
