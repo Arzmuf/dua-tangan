@@ -1,4 +1,5 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
@@ -14,6 +15,7 @@ import { useAuth } from '@/lib/auth';
 import { day, dayTime, fromNow, sameDay, time } from '@/lib/format';
 import { useLastShown } from '@/lib/hooks';
 import { eventStatus, kidsLabel, who, Who } from '@/lib/labels';
+import { SAFE_PLACES, soundsPrivate } from '@/lib/places';
 import { useAction, useEvents, useHome } from '@/lib/queries';
 import type { HandoffEvent, Person } from '@/lib/types';
 import { colors, radius } from '@/theme';
@@ -180,11 +182,43 @@ function ChangeForm({
     <>
       <CalendarPicker value={date} onChange={setDate} minDate={new Date()} />
       <TimePicker value={clock} onChange={setClock} />
-      <Field label="Meeting place" value={location} onChangeText={setLocation} />
+      <PlaceField value={location} onChange={setLocation} />
       <Field label="Reason (optional)" value={reason} onChangeText={setReason} placeholder="e.g. Family event that weekend" />
       <Button title={`Send change for ${day(when)} · ${time(when)}`} loading={propose.isPending} onPress={() => propose.mutate()} />
       <Button title="Back" variant="ghost" onPress={onBack} />
     </>
+  );
+}
+
+/** Meeting place with safe, public suggestions, and a nudge away from anyone's home. */
+function PlaceField({ value, onChange }: { value: string; onChange: (place: string) => void }) {
+  return (
+    <View style={{ gap: 10 }}>
+      <Field
+        label="Meeting place"
+        value={value}
+        onChangeText={onChange}
+        placeholder="e.g. Pondok Indah Mall, main lobby"
+        hint="Pick somewhere public and neutral, like a mall lobby, a park or a station."
+      />
+      {soundsPrivate(value) ? (
+        <View style={styles.nudge}>
+          <Ionicons name="shield-outline" size={18} color={colors.accentDeep} />
+          <Text variant="small" style={{ flex: 1 }}>
+            This sounds like someone’s home. A public place keeps handoffs calm and safe for everyone.
+          </Text>
+        </View>
+      ) : null}
+      <Text variant="smallStrong" color={colors.inkMuted}>
+        Safe public places
+      </Text>
+      <Chips
+        scroll
+        value={SAFE_PLACES.some((p) => p.name === value) ? value : null}
+        onChange={onChange}
+        options={SAFE_PLACES.map((p) => ({ value: p.name, label: `${p.emoji} ${p.name}` }))}
+      />
+    </View>
   );
 }
 
@@ -251,11 +285,6 @@ function NewHandoffForm({ partner, onSent }: { partner: Person; onSent: () => vo
   const [note, setNote] = useState('');
   const when = combine(date, clock);
 
-  const places = useMemo(
-    () => Array.from(new Set((events ?? []).map((e) => e.location))).slice(0, 4),
-    [events],
-  );
-
   const create = useAction(
     () =>
       post<HandoffEvent>('/events', {
@@ -285,10 +314,7 @@ function NewHandoffForm({ partner, onSent }: { partner: Person; onSent: () => vo
       </View>
       <CalendarPicker value={date} onChange={setDate} minDate={new Date()} />
       <TimePicker value={clock} onChange={setClock} />
-      <Field label="Meeting place" value={location} onChangeText={setLocation} placeholder="e.g. Gambir Station, drop-off point B" />
-      {places.length ? (
-        <Chips scroll value={null} onChange={setLocation} options={places.map((p) => ({ value: p, label: p }))} />
-      ) : null}
+      <PlaceField value={location} onChange={setLocation} />
       <Field label="Note (optional)" value={note} onChangeText={setNote} placeholder="e.g. She has swimming at 11" />
       <Button
         title={`Propose ${day(when)} · ${time(when)}`}
@@ -305,5 +331,6 @@ const styles = StyleSheet.create({
   fact: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 16 },
   factValue: { flexShrink: 1, textAlign: 'right' },
   change: { backgroundColor: colors.dangerSoft, borderRadius: radius.lg, padding: 16, gap: 4 },
+  nudge: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.accentSoft, borderRadius: radius.md, padding: 12 },
   actions: { gap: 10 },
 });

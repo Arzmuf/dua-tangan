@@ -89,7 +89,8 @@ export default function MessagesScreen() {
           {me?.family ? <InviteCard code={me.family.invite_code} /> : null}
         </ScrollView>
       ) : (
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        // Android draws edge-to-edge, so the window no longer shrinks for the keyboard: pad on both.
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
           <ScrollView
             ref={scroll}
             style={{ flex: 1 }}

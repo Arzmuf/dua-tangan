@@ -48,7 +48,8 @@ export function Sheet({ visible, onClose, title, subtitle, children, footer }: P
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.fill}>
+      {/* Android draws edge-to-edge, so the window no longer shrinks for the keyboard: pad on both. */}
+      <KeyboardAvoidingView behavior="padding" style={styles.fill}>
         <Pressable accessibilityLabel="Dismiss" style={styles.backdrop} onPress={onClose} />
         <Animated.View
           style={[

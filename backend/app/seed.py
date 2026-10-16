@@ -243,7 +243,7 @@ def seed_demo(db: Session) -> None:
 
     # --- schedule ---------------------------------------------------------------------------------
     gambir = "Gambir Station, drop-off point B"
-    lobby = "Nadia's apartment lobby"
+    mall_lobby = "Pondok Indah Mall, main lobby"
 
     def propose(key, by, starts_at, to, location, at):
         def run():
@@ -311,13 +311,13 @@ def seed_demo(db: Session) -> None:
         steps.append((at, run))
 
     past_sunday = day_at(sat - 13, 17)
-    propose("past", nadia, past_sunday, nadia, lobby, past_sunday - timedelta(days=7))
+    propose("past", nadia, past_sunday, nadia, mall_lobby, past_sunday - timedelta(days=7))
     confirm("past", reza, past_sunday - timedelta(days=6, hours=20))
     check_in("past", nadia, past_sunday + timedelta(minutes=6))
 
     propose("sat", reza, day_at(sat, 9), reza, gambir, ago(days=5, hours=3))
     confirm("sat", nadia, ago(days=5))
-    propose("sun", reza, day_at(sat + 1, 17), nadia, lobby, ago(days=5, hours=3) + timedelta(minutes=2))
+    propose("sun", reza, day_at(sat + 1, 17), nadia, mall_lobby, ago(days=5, hours=3) + timedelta(minutes=2))
     confirm("sun", nadia, ago(days=5) + timedelta(minutes=1))
 
     propose("swap", reza, day_at(sat + 7, 9), reza, gambir, ago(days=4))
