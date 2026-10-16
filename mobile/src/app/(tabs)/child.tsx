@@ -10,7 +10,7 @@ import { Field } from '@/components/Field';
 import { Hero } from '@/components/Hero';
 import { Screen } from '@/components/Screen';
 import { Sheet } from '@/components/Sheet';
-import { Text } from '@/components/Text';
+import { Text, TextColorProvider } from '@/components/Text';
 import { del, patch, post } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { age, day } from '@/lib/format';
@@ -18,7 +18,7 @@ import { useLastShown, useRefreshOnFocus } from '@/lib/hooks';
 import { INFO_CATEGORIES, who } from '@/lib/labels';
 import { useAction, useHome, useInfo } from '@/lib/queries';
 import type { InfoCategory, InfoItem } from '@/lib/types';
-import { colors, radius } from '@/theme';
+import { colors, radius, textOn } from '@/theme';
 
 const CATEGORIES = Object.keys(INFO_CATEGORIES) as InfoCategory[];
 
@@ -52,7 +52,7 @@ export default function ChildScreen() {
         refreshing={isRefetching}
         onRefresh={refetch}
         header={
-          <Hero color={colors.yellow}>
+          <Hero color={colors.accent}>
             <View style={styles.profile}>
               <View style={styles.profileDecor} pointerEvents="none">
                 <View style={[styles.circle, styles.ring]} />
@@ -63,8 +63,10 @@ export default function ChildScreen() {
               <View style={styles.face}>
                 <Text style={{ fontSize: 30, lineHeight: 38 }}>🧒</Text>
               </View>
-              <Text variant="display">{child?.name ?? 'Your child'}</Text>
-              <Text variant="small">{age(child?.birth_date ?? null) ?? 'Shared by both parents'}</Text>
+              <TextColorProvider value={textOn(colors.primary)}>
+                <Text variant="display">{child?.name ?? 'Your child'}</Text>
+                <Text variant="small">{age(child?.birth_date ?? null) ?? 'Shared by both parents'}</Text>
+              </TextColorProvider>
             </View>
           </Hero>
         }
@@ -242,8 +244,8 @@ const styles = StyleSheet.create({
   circle: { position: 'absolute', borderRadius: 999 },
   ring: { right: -40, bottom: -46, width: 150, height: 150, borderWidth: 22, borderColor: colors.white },
   core: { right: -6, bottom: -12, width: 82, height: 82, backgroundColor: colors.primaryDeep },
-  sun: { right: 70, top: 18, width: 34, height: 34, backgroundColor: colors.yellow },
-  dot: { right: 118, bottom: 26, width: 18, height: 18, backgroundColor: colors.pink },
+  sun: { right: 70, top: 18, width: 34, height: 34, backgroundColor: colors.accent },
+  dot: { right: 118, bottom: 26, width: 18, height: 18, backgroundColor: colors.sky },
   face: {
     width: 58,
     height: 58,

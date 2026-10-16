@@ -80,7 +80,7 @@ export function PendingEventCard({ event, kids, onOpen }: { event: HandoffEvent;
     return (
       <RequestShell
         emoji="🔁"
-        tint={colors.pinkSoft}
+        tint={colors.accentSoft}
         label="Schedule change"
         title={`${event.change.by.first_name} wants to move a handoff`}
         lines={lines}
@@ -95,7 +95,7 @@ export function PendingEventCard({ event, kids, onOpen }: { event: HandoffEvent;
   return (
     <RequestShell
       emoji="📅"
-      tint={colors.yellowSoft}
+      tint={colors.primarySoft}
       label="New handoff"
       title={`${event.created_by.first_name} proposed a handoff`}
       lines={[`${dayTime(event.starts_at)} · ${kidsLabel(kids)} to ${who(event.to_parent, meId)}`, event.location]}

@@ -58,10 +58,10 @@ export default function RecordScreen() {
       }
     >
       {v ? (
-        <View style={[styles.verify, { backgroundColor: v.valid ? colors.primarySoft : colors.pinkSoft }]}>
-          <Ionicons name={v.valid ? 'shield-checkmark' : 'warning'} size={26} color={v.valid ? colors.primaryDeep : colors.pinkDeep} />
+        <View style={[styles.verify, { backgroundColor: v.valid ? colors.primarySoft : colors.dangerSoft }]}>
+          <Ionicons name={v.valid ? 'shield-checkmark' : 'warning'} size={26} color={v.valid ? colors.primaryDeep : colors.dangerDeep} />
           <View style={{ flex: 1 }}>
-            <Text variant="smallStrong" color={v.valid ? colors.primaryDeep : colors.pinkDeep}>
+            <Text variant="smallStrong" color={v.valid ? colors.primaryDeep : colors.dangerDeep}>
               {v.valid ? 'Integrity verified' : `Integrity check failed at entry #${v.broken_seq}`}
             </Text>
             <Text variant="small" color={colors.inkMuted}>
@@ -95,7 +95,7 @@ export default function RecordScreen() {
           {data.entries.map((e, i) => (
             <View key={e.id} style={styles.entry}>
               <View style={styles.rail}>
-                <View style={[styles.dot, e.flagged && { backgroundColor: colors.pink }]}>
+                <View style={[styles.dot, e.flagged && { backgroundColor: colors.danger }]}>
                   <Text style={{ fontSize: 13, lineHeight: 16 }}>{KIND_ICON[e.kind] ?? '•'}</Text>
                 </View>
                 {i < data.entries.length - 1 ? <View style={styles.line} /> : null}
@@ -112,7 +112,7 @@ export default function RecordScreen() {
                     #{e.hash.slice(0, 8)}
                   </Text>
                   {e.flagged ? (
-                    <Text variant="tiny" color={colors.pinkDeep}>
+                    <Text variant="tiny" color={colors.dangerDeep}>
                       Heated tone
                     </Text>
                   ) : null}

@@ -29,7 +29,7 @@ import { useKeyboardVisible } from '@/lib/hooks';
 import { kidsLabel } from '@/lib/labels';
 import { keys, useAction, useHome, useMessages } from '@/lib/queries';
 import type { Message, ToneResult } from '@/lib/types';
-import { colors, fonts, radius, shadow, TAB_BAR_GAP, TAB_BAR_HEIGHT } from '@/theme';
+import { colors, fonts, radius, shadow, TAB_BAR_GAP, TAB_BAR_HEIGHT, textOn } from '@/theme';
 
 export default function MessagesScreen() {
   const insets = useSafeAreaInsets();
@@ -134,11 +134,13 @@ function Bubble({ message: m }: { message: Message }) {
     <View style={[styles.row, m.mine ? styles.rowMine : styles.rowTheirs]}>
       <View style={[styles.bubble, m.mine ? styles.mine : styles.theirs, m.is_urgent && styles.urgent]}>
         {m.is_urgent ? (
-          <Text variant="label" color={colors.pinkDeep}>
+          <Text variant="label" color={m.mine ? colors.dangerSoft : colors.dangerDeep}>
             Urgent
           </Text>
         ) : null}
-        <Text variant="body">{m.body}</Text>
+        <Text variant="body" color={m.mine ? textOn(colors.primary) : colors.ink}>
+          {m.body}
+        </Text>
       </View>
       <View style={[styles.meta, m.mine && { justifyContent: 'flex-end' }]}>
         <Text variant="tiny" color={colors.inkFaint}>
@@ -227,8 +229,8 @@ function Composer({
       {heated ? (
         <View style={styles.toneBox}>
           <View style={styles.toneHead}>
-            <Ionicons name="alert-circle" size={18} color={colors.pinkDeep} />
-            <Text variant="smallStrong" color={colors.pinkDeep}>
+            <Ionicons name="alert-circle" size={18} color={colors.dangerDeep} />
+            <Text variant="smallStrong" color={colors.dangerDeep}>
               This may read as heated
             </Text>
           </View>
@@ -280,8 +282,8 @@ function Composer({
         <IconButton
           icon={urgent ? 'flag' : 'flag-outline'}
           label={urgent ? 'Unmark urgent' : 'Mark as urgent'}
-          color={urgent ? colors.pinkDeep : colors.inkMuted}
-          background={urgent ? colors.pinkSoft : colors.field}
+          color={urgent ? colors.dangerDeep : colors.inkMuted}
+          background={urgent ? colors.dangerSoft : colors.field}
           size={40}
           onPress={() => setUrgent((u) => !u)}
         />
@@ -336,10 +338,10 @@ const styles = StyleSheet.create({
   bubble: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, gap: 2 },
   mine: { backgroundColor: colors.primary, borderBottomRightRadius: 6 },
   theirs: { backgroundColor: colors.surface, borderBottomLeftRadius: 6, ...shadow.card },
-  urgent: { borderWidth: 1.5, borderColor: colors.pink },
+  urgent: { borderWidth: 1.5, borderColor: colors.danger },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', paddingHorizontal: 4 },
   composerWrap: { paddingHorizontal: 12, gap: 8, width: '100%', maxWidth: 680, alignSelf: 'center' },
-  toneBox: { backgroundColor: colors.pinkSoft, borderRadius: radius.lg, padding: 14, gap: 6 },
+  toneBox: { backgroundColor: colors.dangerSoft, borderRadius: radius.lg, padding: 14, gap: 6 },
   toneHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   toneActions: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 },
   calm: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 8 },

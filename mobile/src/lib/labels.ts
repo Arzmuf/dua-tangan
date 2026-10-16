@@ -4,9 +4,9 @@ import { rupiah } from './format';
 import type { Child, Expense, ExpenseCategory, HandoffEvent, InfoCategory, Person } from './types';
 
 export const EXPENSE_CATEGORIES: Record<ExpenseCategory, { label: string; emoji: string; tile: string }> = {
-  school: { label: 'School', emoji: '🎒', tile: colors.yellowSoft },
-  health: { label: 'Health', emoji: '🩺', tile: colors.pinkSoft },
-  activities: { label: 'Activities', emoji: '⚽', tile: colors.primarySoft },
+  school: { label: 'School', emoji: '🎒', tile: colors.accentSoft },
+  health: { label: 'Health', emoji: '🩺', tile: colors.primarySoft },
+  activities: { label: 'Activities', emoji: '⚽', tile: colors.accentSoft },
   clothing: { label: 'Clothing', emoji: '👟', tile: colors.primaryTint },
   other: { label: 'Other', emoji: '🛍️', tile: colors.field },
 };

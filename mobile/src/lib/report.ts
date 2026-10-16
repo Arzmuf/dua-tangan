@@ -2,6 +2,7 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Platform } from 'react-native';
 
+import { colors } from '@/theme';
 import { api } from './api';
 import { dayTime } from './format';
 import type { Report } from './types';
@@ -28,16 +29,16 @@ function buildHtml(r: Report): string {
 
   return `<!doctype html><html><head><meta charset="utf-8"><title>Dua Tangan activity report</title>
   <style>
-    body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1D2B28;margin:32px;font-size:12px}
-    h1{font-size:22px;margin:0 0 4px} .muted{color:#5F6F6B}
+    body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${colors.ink};margin:32px;font-size:12px}
+    h1{font-size:22px;margin:0 0 4px} .muted{color:${colors.inkMuted}}
     .ok,.bad{margin:16px 0;padding:10px 12px;border-radius:10px;font-weight:600}
-    .ok{background:#DDEFE9;color:#3F7F6E} .bad{background:#FFE4EA;color:#B83A57}
+    .ok{background:${colors.primarySoft};color:${colors.primaryDeep}} .bad{background:${colors.dangerSoft};color:${colors.dangerDeep}}
     table{width:100%;border-collapse:collapse;margin-top:8px}
-    th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#5F6F6B;border-bottom:1px solid #E7ECEA;padding:6px 8px}
-    td{padding:7px 8px;border-bottom:1px solid #F1F4F3;vertical-align:top}
-    td.n{color:#97A3A0;width:28px} td.t{white-space:nowrap;width:130px} td.h{font-family:Menlo,monospace;color:#97A3A0;width:96px}
-    tr.flag td{background:#FFF6F8} .tag{background:#FFE4EA;color:#B83A57;border-radius:6px;padding:1px 6px;font-size:10px;font-weight:600}
-    footer{margin-top:18px;font-size:10px;color:#97A3A0}
+    th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:${colors.inkMuted};border-bottom:1px solid ${colors.border};padding:6px 8px}
+    td{padding:7px 8px;border-bottom:1px solid ${colors.field};vertical-align:top}
+    td.n{color:${colors.inkFaint};width:28px} td.t{white-space:nowrap;width:130px} td.h{font-family:Menlo,monospace;color:${colors.inkFaint};width:96px}
+    tr.flag td{background:${colors.dangerSoft}80} .tag{background:${colors.dangerSoft};color:${colors.dangerDeep};border-radius:6px;padding:1px 6px;font-size:10px;font-weight:600}
+    footer{margin-top:18px;font-size:10px;color:${colors.inkFaint}}
   </style></head><body>
   <h1>Dua Tangan — Activity report</h1>
   <div class="muted">${parents}${kids ? ` · ${kids}` : ''} · ${r.entries.length} entries</div>

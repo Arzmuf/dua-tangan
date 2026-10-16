@@ -7,9 +7,9 @@ export type PillTone = 'ok' | 'wait' | 'warn' | 'neutral' | 'info';
 
 const tones: Record<PillTone, { bg: string; fg: string }> = {
   ok: { bg: colors.primarySoft, fg: colors.primaryDeep },
-  wait: { bg: colors.yellowSoft, fg: colors.yellowDeep },
-  warn: { bg: colors.pinkSoft, fg: colors.pinkDeep },
-  neutral: { bg: '#EEF1F0', fg: colors.inkMuted },
+  wait: { bg: colors.accentSoft, fg: colors.accentDeep },
+  warn: { bg: colors.dangerSoft, fg: colors.dangerDeep },
+  neutral: { bg: colors.field, fg: colors.inkMuted },
   info: { bg: colors.primaryTint, fg: colors.primaryDeep },
 };
 

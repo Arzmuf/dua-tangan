@@ -47,7 +47,7 @@ export function ListRow({ tile, tileColor = colors.primarySoft, title, subtitle,
   );
 }
 
-export function DateTile({ date, tone = 'mint' }: { date: Date; tone?: 'mint' | 'yellow' | 'pink' | 'muted' }) {
+export function DateTile({ date, tone = 'default' }: { date: Date; tone?: 'default' | 'muted' }) {
   const fg = tone === 'muted' ? colors.inkFaint : colors.ink;
   return (
     <View style={styles.dateTile}>

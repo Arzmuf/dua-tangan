@@ -85,7 +85,7 @@ export function Sheet({ visible, onClose, title, subtitle, children, footer }: P
 
 const styles = StyleSheet.create({
   fill: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(20, 30, 28, 0.38)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(16, 20, 40, 0.38)' },
   sheet: {
     backgroundColor: colors.surface,
     borderTopLeftRadius: radius.xl,

@@ -111,7 +111,7 @@ export default function Onboarding() {
     >
       {mode === 'choose' ? (
         <View style={styles.stack}>
-          <Card color={colors.pink} onPress={() => go('create')} style={styles.choice}>
+          <Card color={colors.primary} onPress={() => go('create')} style={styles.choice}>
             <Text variant="label" color={colors.white}>
               I’m the first one here
             </Text>
@@ -122,7 +122,7 @@ export default function Onboarding() {
               Add your child and get a code for your co-parent.
             </Text>
           </Card>
-          <Card color={colors.yellow} onPress={() => go('join')} style={styles.choice}>
+          <Card color={colors.accent} onPress={() => go('join')} style={styles.choice}>
             <Text variant="label" color={colors.ink}>
               I have a code
             </Text>

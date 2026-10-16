@@ -37,7 +37,7 @@ export default function SupportScreen() {
         withTabBar={false}
         header={
           <Hero
-            color={colors.yellow}
+            color={colors.accent}
             onBack={() => (router.canGoBack() ? router.back() : router.replace('/'))}
             title="Support"
             subtitle="Talk to someone who understands two-home families."
@@ -65,7 +65,7 @@ export default function SupportScreen() {
               <ListRow
                 key={c.id}
                 tile={c.icon}
-                tileColor={colors.yellowSoft}
+                tileColor={colors.accentSoft}
                 title={c.name}
                 subtitle={`${c.title} · ${c.focus}`}
                 onPress={() => setBooking(c)}

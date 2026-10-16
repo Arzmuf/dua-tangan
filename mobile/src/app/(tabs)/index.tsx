@@ -91,7 +91,7 @@ export default function HomeScreen() {
               />
               <ListRow
                 tile="🌿"
-                tileColor={colors.yellowSoft}
+                tileColor={colors.accentSoft}
                 title="Talk to a counsellor"
                 subtitle="Support for your child and for you — first session free"
                 onPress={() => router.push('/support')}
@@ -131,7 +131,7 @@ function Grid({ home, meId }: { home: Home; meId: number }) {
   return (
     <View style={styles.grid}>
       <View style={styles.column}>
-        <Card color={colors.pink} onPress={() => router.push('/schedule')} style={[styles.tile, styles.tall]}>
+        <Card color={colors.primary} onPress={() => router.push('/schedule')} style={[styles.tile, styles.tall]}>
           <Text variant="label" color={colors.white} style={{ opacity: 0.9 }}>
             Next handoff
           </Text>
@@ -168,7 +168,7 @@ function Grid({ home, meId }: { home: Home; meId: number }) {
             <Text variant="smallStrong" color={colors.inkMuted}>
               {balance === 0 ? 'All settled' : balance > 0 ? `${partner} owes you` : `You owe ${partner}`}
             </Text>
-            <Text variant="heading" color={balance < 0 ? colors.pinkDeep : colors.ink}>
+            <Text variant="heading" color={balance < 0 ? colors.dangerDeep : colors.ink}>
               {rupiah(Math.abs(balance))}
             </Text>
           </View>
@@ -181,12 +181,12 @@ function Grid({ home, meId }: { home: Home; meId: number }) {
           </Text>
           <View style={styles.tileBottom}>
             <Text variant="heading">Chat with {partner}</Text>
-            <Text variant="smallStrong" color={home.unread_messages ? colors.pinkDeep : colors.inkMuted}>
+            <Text variant="smallStrong" color={home.unread_messages ? colors.dangerDeep : colors.inkMuted}>
               {home.unread_messages ? `${home.unread_messages} new` : 'No new messages'}
             </Text>
           </View>
         </Card>
-        <Card color={colors.yellow} onPress={() => router.push('/child')} style={[styles.tile, styles.tall]}>
+        <Card color={colors.accent} onPress={() => router.push('/child')} style={[styles.tile, styles.tall]}>
           <Text variant="label" color={colors.ink} style={{ opacity: 0.7 }}>
             {child}’s info
           </Text>

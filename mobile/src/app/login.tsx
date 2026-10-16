@@ -39,7 +39,7 @@ export default function Login() {
   return (
     <Screen
       withTabBar={false}
-      header={<Hero color={colors.yellow} onBack={() => goBackOr('/welcome')} title="Welcome back" subtitle="Sign in to your family space." />}
+      header={<Hero color={colors.accent} onBack={() => goBackOr('/welcome')} title="Welcome back" subtitle="Sign in to your family space." />}
     >
       <View style={styles.form}>
         <Field

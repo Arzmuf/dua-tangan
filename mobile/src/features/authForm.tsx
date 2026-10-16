@@ -13,7 +13,7 @@ export function FormError({ message }: { message: string | null }) {
   if (!message) return null;
   return (
     <View style={styles.error}>
-      <Text variant="smallStrong" color={colors.pinkDeep}>
+      <Text variant="smallStrong" color={colors.dangerDeep}>
         {message}
       </Text>
     </View>
@@ -21,5 +21,5 @@ export function FormError({ message }: { message: string | null }) {
 }
 
 const styles = StyleSheet.create({
-  error: { backgroundColor: colors.pinkSoft, borderRadius: radius.md, padding: 12 },
+  error: { backgroundColor: colors.dangerSoft, borderRadius: radius.md, padding: 12 },
 });

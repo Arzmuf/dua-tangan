@@ -81,7 +81,7 @@ export function ToastView() {
         <Ionicons
           name={toast.tone === 'error' ? 'alert-circle' : 'checkmark-circle'}
           size={20}
-          color={toast.tone === 'error' ? colors.pink : colors.primary}
+          color={toast.tone === 'error' ? colors.danger : colors.primary}
         />
         <Text variant="smallStrong" color={colors.white} style={{ flexShrink: 1 }}>
           {toast.message}

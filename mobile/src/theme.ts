@@ -1,30 +1,46 @@
-// Design tokens. Light, soft, rounded — modelled on the reference design, with the
-// prototype's turquoise kept as the brand colour.
+// Design tokens. Light, soft, rounded — modelled on the reference design, with a deep blue
+// brand colour and a soft orange accent.
 
 export const colors = {
-  primary: '#7EBBA8', // brand turquoise from the prototype; pair with ink text
-  primaryDeep: '#3F7F6E', // same hue, dark enough for white text/icons (4.7:1)
-  primarySoft: '#DDEFE9',
-  primaryTint: '#EEF7F4',
+  primary: '#3346AC', // brand blue; pair with white text (8:1)
+  primaryDeep: '#26348A', // darker blue for text and icons on light backgrounds
+  primarySoft: '#E2E7F8',
+  primaryTint: '#EEF1FC',
+  sky: '#A8B6F0', // light blue for decoration on primary
 
-  pink: '#EF5F7E',
-  pinkDeep: '#B83A57', // text on pinkSoft
-  pinkSoft: '#FFE4EA',
-  yellow: '#FED06B',
-  yellowDeep: '#7A5500', // text on yellowSoft
-  yellowSoft: '#FFF3D6',
-  mint: '#BFE3D8',
-  field: '#F1F4F3',
+  accent: '#F8A877', // soft orange; pair with ink text
+  accentDeep: '#99460F', // text on accentSoft
+  accentSoft: '#FFEEE2',
 
-  ink: '#1D2B28',
-  inkMuted: '#5F6F6B',
-  inkFaint: '#97A3A0',
+  danger: '#D6363C', // urgent, errors and badges; pair with white text
+  dangerDeep: '#B3262E', // text on dangerSoft
+  dangerSoft: '#FDE7E8',
+  field: '#EFF1F7',
 
-  bg: '#F6F7F6',
+  ink: '#1A1F36',
+  inkMuted: '#5B6178',
+  inkFaint: '#868CA2',
+
+  bg: '#F5F6FA',
   surface: '#FFFFFF',
-  border: '#E7ECEA',
+  border: '#E4E7F0',
   white: '#FFFFFF',
 } as const;
+
+/** Ink or white, whichever contrasts more with a #RRGGBB background (anything else gets ink). */
+export function textOn(background: string): string {
+  if (!/^#[0-9a-f]{6}$/i.test(background)) return colors.ink;
+  const luminance = (hex: string) => {
+    const [r, g, b] = (hex.slice(1).match(/../g) ?? []).map((c) => {
+      const v = parseInt(c, 16) / 255;
+      return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const bg = luminance(background);
+  const contrast = (fg: string) => (Math.max(bg, luminance(fg)) + 0.05) / (Math.min(bg, luminance(fg)) + 0.05);
+  return contrast(colors.white) > contrast(colors.ink) ? colors.white : colors.ink;
+}
 
 export const fonts = {
   regular: 'PlusJakartaSans_400Regular',
@@ -44,8 +60,8 @@ export const radius = {
 } as const;
 
 export const shadow = {
-  card: { boxShadow: '0px 6px 18px rgba(29, 43, 40, 0.06)' },
-  raised: { boxShadow: '0px 12px 32px rgba(29, 43, 40, 0.14)' },
+  card: { boxShadow: '0px 6px 18px rgba(26, 31, 54, 0.06)' },
+  raised: { boxShadow: '0px 12px 32px rgba(26, 31, 54, 0.14)' },
 } as const;
 
 // Space the floating tab bar takes at the bottom of tab screens (bar + gap), before safe-area inset.

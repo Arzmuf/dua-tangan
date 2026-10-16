@@ -5,12 +5,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Logo } from '@/components/Bits';
 import { Button } from '@/components/Button';
 import { Decor } from '@/components/Hero';
-import { Text } from '@/components/Text';
-import { colors, radius, shadow } from '@/theme';
+import { Text, TextColorProvider } from '@/components/Text';
+import { colors, radius, shadow, textOn } from '@/theme';
 
 const FEATURES = [
-  { emoji: '📅', tint: colors.yellowSoft, title: 'Plan handoffs together', text: 'Every change is agreed by both of you.' },
-  { emoji: '💸', tint: colors.pinkSoft, title: 'Split costs fairly', text: 'Add an expense, approve it, settle up.' },
+  { emoji: '📅', tint: colors.primarySoft, title: 'Plan handoffs together', text: 'Every change is agreed by both of you.' },
+  { emoji: '💸', tint: colors.accentSoft, title: 'Split costs fairly', text: 'Add an expense, approve it, settle up.' },
   { emoji: '💬', tint: colors.primarySoft, title: 'Talk calmly', text: 'A gentle tone check before you send.' },
 ];
 
@@ -19,14 +19,16 @@ export default function Welcome() {
   return (
     <ScrollView style={styles.page} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
       <View style={[styles.hero, { paddingTop: insets.top + 28 }]}>
-        <Decor placement="top" />
-        <Logo size={58} color={colors.white} />
-        <Text variant="display" style={styles.headline}>
-          Two homes,{'\n'}one calm place.
-        </Text>
-        <Text variant="body" style={styles.lead}>
-          Handoffs, shared costs and conversations about your child — in one record you both trust.
-        </Text>
+        <TextColorProvider value={textOn(colors.primary)}>
+          <Decor placement="top" />
+          <Logo size={58} color={colors.white} />
+          <Text variant="display" style={styles.headline}>
+            Two homes,{'\n'}one calm place.
+          </Text>
+          <Text variant="body" style={styles.lead}>
+            Handoffs, shared costs and conversations about your child — in one record you both trust.
+          </Text>
+        </TextColorProvider>
       </View>
 
       <View style={styles.body}>

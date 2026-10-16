@@ -48,7 +48,7 @@ export default function ScheduleScreen() {
         onRefresh={refetch}
         header={
           <Hero
-            color={colors.yellow}
+            color={colors.accent}
             title="Schedule"
             subtitle={`Handoffs you and ${partner} have agreed on — and the ones waiting.`}
             fab={{ icon: 'add', label: 'Propose a handoff', onPress: () => setCreating(true) }}

@@ -24,8 +24,8 @@ function useMeId() {
 
 function tileTone(e: HandoffEvent, meId: number): string {
   const s = eventStatus(e, meId);
-  if (s.tone === 'warn') return colors.pinkSoft;
-  if (s.tone === 'wait') return colors.yellowSoft;
+  if (s.tone === 'warn') return colors.dangerSoft;
+  if (s.tone === 'wait') return colors.accentSoft;
   return colors.primarySoft;
 }
 
@@ -35,7 +35,7 @@ export function EventRow({ event, onPress, past }: { event: HandoffEvent; onPres
   const status = eventStatus(event, meId);
   return (
     <ListRow
-      tile={<DateTile date={new Date(event.starts_at)} tone={past ? 'muted' : 'mint'} />}
+      tile={<DateTile date={new Date(event.starts_at)} tone={past ? 'muted' : 'default'} />}
       tileColor={past ? colors.field : tileTone(event, meId)}
       title={`${kidsLabel(home?.children)} to ${who(event.to_parent, meId)}`}
       subtitle={`${time(event.starts_at)} · ${event.location}`}
@@ -110,7 +110,7 @@ export function EventSheet({ event, onClose }: { event: HandoffEvent | null; onC
 
           {e.change ? (
             <View style={styles.change}>
-              <Text variant="label" color={colors.pinkDeep}>
+              <Text variant="label" color={colors.dangerDeep}>
                 {e.change.by.id === meId ? 'Your change request' : `${e.change.by.first_name} wants to move this`}
               </Text>
               <Text variant="bodyStrong">
@@ -304,6 +304,6 @@ const styles = StyleSheet.create({
   facts: { backgroundColor: colors.field, borderRadius: radius.lg, padding: 16, gap: 12 },
   fact: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 16 },
   factValue: { flexShrink: 1, textAlign: 'right' },
-  change: { backgroundColor: colors.pinkSoft, borderRadius: radius.lg, padding: 16, gap: 4 },
+  change: { backgroundColor: colors.dangerSoft, borderRadius: radius.lg, padding: 16, gap: 4 },
   actions: { gap: 10 },
 });

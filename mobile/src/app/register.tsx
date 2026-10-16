@@ -37,7 +37,7 @@ export default function Register() {
       withTabBar={false}
       header={
         <Hero
-          color={colors.yellow}
+          color={colors.accent}
           onBack={() => goBackOr('/welcome')}
           title="Create your account"
           subtitle="Next, you'll set up your family or join your co-parent."

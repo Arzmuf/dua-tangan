@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useKeyboardVisible } from '@/lib/hooks';
 import { useHome } from '@/lib/queries';
-import { colors, radius, shadow, TAB_BAR_GAP, TAB_BAR_HEIGHT } from '@/theme';
+import { colors, radius, shadow, TAB_BAR_GAP, TAB_BAR_HEIGHT, textOn } from '@/theme';
 import { Text } from './Text';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -59,7 +59,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
               style={[styles.item, focused && styles.itemActive]}
             >
               <View>
-                <Ionicons name={focused ? tab.active : tab.icon} size={22} color={focused ? colors.ink : colors.inkFaint} />
+                <Ionicons name={focused ? tab.active : tab.icon} size={22} color={focused ? textOn(colors.primary) : colors.inkFaint} />
                 {badge ? (
                   <View style={styles.badge}>
                     <Text variant="tiny" color={colors.white} style={styles.badgeText}>
@@ -69,7 +69,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
                 ) : null}
               </View>
               {focused ? (
-                <Text variant="smallStrong" numberOfLines={1}>
+                <Text variant="smallStrong" color={textOn(colors.primary)} numberOfLines={1}>
                   {label}
                 </Text>
               ) : null}
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     height: 18,
     paddingHorizontal: 4,
     borderRadius: 9,
-    backgroundColor: colors.pink,
+    backgroundColor: colors.danger,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,

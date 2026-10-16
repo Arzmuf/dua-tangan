@@ -10,11 +10,11 @@ type Variant = 'primary' | 'soft' | 'outline' | 'ghost' | 'danger' | 'light';
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
 const palette: Record<Variant, { bg: string; fg: string; border?: string }> = {
-  primary: { bg: colors.primaryDeep, fg: colors.white },
+  primary: { bg: colors.primary, fg: colors.white },
   soft: { bg: colors.primarySoft, fg: colors.primaryDeep },
   outline: { bg: colors.surface, fg: colors.ink, border: colors.border },
   ghost: { bg: 'transparent', fg: colors.primaryDeep },
-  danger: { bg: colors.pinkSoft, fg: colors.pinkDeep },
+  danger: { bg: colors.dangerSoft, fg: colors.dangerDeep },
   light: { bg: 'rgba(255,255,255,0.85)', fg: colors.ink },
 };
 

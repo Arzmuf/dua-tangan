@@ -1,12 +1,14 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { colors, radius, shadow } from '@/theme';
+import { colors, radius, shadow, textOn } from '@/theme';
+import { TextColorProvider } from './Text';
 
 type Props = { children: ReactNode; onPress?: () => void; style?: StyleProp<ViewStyle>; color?: string };
 
 export function Card({ children, onPress, style, color = colors.surface }: Props) {
-  if (!onPress) return <View style={[styles.card, { backgroundColor: color }, style]}>{children}</View>;
+  const content = <TextColorProvider value={textOn(color)}>{children}</TextColorProvider>;
+  if (!onPress) return <View style={[styles.card, { backgroundColor: color }, style]}>{content}</View>;
   return (
     <Pressable
       accessibilityRole="button"
@@ -17,7 +19,7 @@ export function Card({ children, onPress, style, color = colors.surface }: Props
         style,
       ]}
     >
-      {children}
+      {content}
     </Pressable>
   );
 }

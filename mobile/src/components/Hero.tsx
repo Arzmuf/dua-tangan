@@ -3,9 +3,9 @@ import type { ComponentProps, ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, radius, shadow } from '@/theme';
+import { colors, radius, shadow, textOn } from '@/theme';
 import { IconButton } from './Button';
-import { Text } from './Text';
+import { Text, TextColorProvider } from './Text';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -25,36 +25,40 @@ type Props = {
  *  that overlaps its bottom edge. */
 export function Hero({ color = colors.primary, title, subtitle, onBack, left, right, children, decor, fab }: Props) {
   const insets = useSafeAreaInsets();
+  // The button straddles the hero's edge, so it takes whichever brand colour stands out against it.
+  const fabColor = textOn(color) === colors.white ? colors.accent : colors.primary;
   return (
     <View style={[styles.hero, { backgroundColor: color, paddingTop: insets.top + 14 }]}>
-      {decor ? <Decor placement={decor === 'top' ? 'top' : 'bottom'} /> : null}
-      {onBack || left || right ? (
-        <View style={styles.topRow}>
-          {onBack ? <IconButton icon="chevron-back" label="Back" onPress={onBack} /> : (left ?? <View />)}
-          {right ?? <View />}
-        </View>
-      ) : null}
-      {title ? (
-        <Text variant="title" style={[styles.title, !!decor && styles.besideDecor]}>
-          {title}
-        </Text>
-      ) : null}
-      {subtitle ? (
-        <Text variant="body" color={colors.ink} style={[styles.subtitle, !!decor && styles.besideDecor]}>
-          {subtitle}
-        </Text>
-      ) : null}
-      {children}
-      {fab ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={fab.label}
-          onPress={fab.onPress}
-          style={({ pressed }) => [styles.fab, { opacity: pressed ? 0.85 : 1 }]}
-        >
-          <Ionicons name={fab.icon} size={26} color={colors.white} />
-        </Pressable>
-      ) : null}
+      <TextColorProvider value={textOn(color)}>
+        {decor ? <Decor placement={decor === 'top' ? 'top' : 'bottom'} /> : null}
+        {onBack || left || right ? (
+          <View style={styles.topRow}>
+            {onBack ? <IconButton icon="chevron-back" label="Back" onPress={onBack} /> : (left ?? <View />)}
+            {right ?? <View />}
+          </View>
+        ) : null}
+        {title ? (
+          <Text variant="title" style={[styles.title, !!decor && styles.besideDecor]}>
+            {title}
+          </Text>
+        ) : null}
+        {subtitle ? (
+          <Text variant="body" style={[styles.subtitle, !!decor && styles.besideDecor]}>
+            {subtitle}
+          </Text>
+        ) : null}
+        {children}
+        {fab ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={fab.label}
+            onPress={fab.onPress}
+            style={({ pressed }) => [styles.fab, { backgroundColor: fabColor, opacity: pressed ? 0.85 : 1 }]}
+          >
+            <Ionicons name={fab.icon} size={26} color={textOn(fabColor)} />
+          </Pressable>
+        ) : null}
+      </TextColorProvider>
     </View>
   );
 }
@@ -68,7 +72,7 @@ export function Decor({ placement = 'bottom' }: { placement?: 'bottom' | 'top' }
       <View style={[styles.circle, top ? styles.ringTop : styles.ring]} />
       <View style={[styles.circle, top ? styles.ringCoreTop : styles.ringCore]} />
       <View style={[styles.circle, top ? styles.sunTop : styles.sun]} />
-      <View style={[styles.circle, top ? styles.mintTop : styles.mint]} />
+      <View style={[styles.circle, top ? styles.skyTop : styles.sky]} />
       <View style={[styles.circle, top ? styles.dotTop : styles.dot]} />
     </View>
   );
@@ -94,7 +98,6 @@ const styles = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: 18,
-    backgroundColor: colors.primaryDeep,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadow.raised,
@@ -109,12 +112,12 @@ const styles = StyleSheet.create({
   ring: { right: -64, bottom: -70, width: 210, height: 210, borderWidth: 30, borderColor: colors.white },
   ringCore: { right: -14, bottom: -20, width: 110, height: 110, backgroundColor: colors.primaryDeep },
   // Everything stays in the right ~40% so it never runs into the header text.
-  sun: { right: 84, bottom: 92, width: 64, height: 64, backgroundColor: colors.yellow },
-  mint: { right: 154, bottom: 128, width: 30, height: 30, backgroundColor: colors.mint },
-  dot: { right: 126, bottom: 22, width: 24, height: 24, backgroundColor: colors.pink },
+  sun: { right: 84, bottom: 92, width: 64, height: 64, backgroundColor: colors.accent },
+  sky: { right: 154, bottom: 128, width: 30, height: 30, backgroundColor: colors.sky },
+  dot: { right: 126, bottom: 22, width: 24, height: 24, backgroundColor: colors.accent },
   ringTop: { right: -76, top: -86, width: 210, height: 210, borderWidth: 30, borderColor: colors.white },
   ringCoreTop: { right: -26, top: -36, width: 110, height: 110, backgroundColor: colors.primaryDeep },
-  sunTop: { right: 104, top: 72, width: 52, height: 52, backgroundColor: colors.yellow },
-  mintTop: { right: 140, top: 22, width: 32, height: 32, backgroundColor: colors.mint },
-  dotTop: { right: 36, top: 150, width: 22, height: 22, backgroundColor: colors.pink },
+  sunTop: { right: 104, top: 72, width: 52, height: 52, backgroundColor: colors.accent },
+  skyTop: { right: 140, top: 22, width: 32, height: 32, backgroundColor: colors.sky },
+  dotTop: { right: 36, top: 150, width: 22, height: 22, backgroundColor: colors.accent },
 });

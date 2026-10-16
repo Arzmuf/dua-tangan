@@ -1,6 +1,11 @@
+import { createContext, useContext } from 'react';
 import { Platform, Text as RNText, StyleSheet, type TextProps } from 'react-native';
 
 import { colors, fonts } from '@/theme';
+
+/** Default text colour for everything inside, so text on a dark surface turns white on its own. */
+const TextColor = createContext<string>(colors.ink);
+export const TextColorProvider = TextColor.Provider;
 
 const variants = StyleSheet.create({
   display: { fontFamily: fonts.extrabold, fontSize: 30, lineHeight: 36, letterSpacing: -0.6 },
@@ -24,6 +29,7 @@ export type TextVariant = keyof typeof variants;
 
 type Props = TextProps & { variant?: TextVariant; color?: string; center?: boolean };
 
-export function Text({ variant = 'body', color = colors.ink, center, style, ...rest }: Props) {
-  return <RNText style={[variants[variant], { color }, center && { textAlign: 'center' }, style]} {...rest} />;
+export function Text({ variant = 'body', color, center, style, ...rest }: Props) {
+  const inherited = useContext(TextColor);
+  return <RNText style={[variants[variant], { color: color ?? inherited }, center && { textAlign: 'center' }, style]} {...rest} />;
 }

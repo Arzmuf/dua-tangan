@@ -9,7 +9,7 @@ import { ExpenseRow, ExpenseSheet, NewExpenseSheet } from '@/features/expenses';
 import { rupiah } from '@/lib/format';
 import { useRefreshOnFocus } from '@/lib/hooks';
 import { useExpenses } from '@/lib/queries';
-import { colors, radius } from '@/theme';
+import { radius } from '@/theme';
 
 export default function ExpensesScreen() {
   const { data, refetch, isRefetching, isLoading } = useExpenses();
@@ -38,7 +38,7 @@ export default function ExpensesScreen() {
         header={
           <Hero title="Expenses" fab={{ icon: 'add', label: 'Add an expense', onPress: () => setCreating(true) }}>
             <View style={styles.balance}>
-              <Text variant="label" color={colors.ink} style={{ opacity: 0.7 }}>
+              <Text variant="label" style={{ opacity: 0.8 }}>
                 {balance === 0 ? 'Balance' : balance > 0 ? `${partner} owes you` : `You owe ${partner}`}
               </Text>
               <Text variant="display">{balance === 0 ? 'All settled' : rupiah(Math.abs(balance))}</Text>
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
     padding: 18,
     borderRadius: radius.lg,
-    backgroundColor: 'rgba(255,255,255,0.45)',
+    backgroundColor: 'rgba(255,255,255,0.12)',
     gap: 2,
     marginRight: 40,
   },

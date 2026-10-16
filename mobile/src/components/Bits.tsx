@@ -2,14 +2,14 @@ import { Image, StyleSheet, View, type ImageStyle, type StyleProp } from 'react-
 import type { ReactNode } from 'react';
 
 import { initials } from '@/lib/format';
-import { colors } from '@/theme';
+import { colors, textOn } from '@/theme';
 import { Button } from './Button';
 import { Text } from './Text';
 
-export function Avatar({ name, size = 44, color = colors.yellow }: { name: string; size?: number; color?: string }) {
+export function Avatar({ name, size = 44, color = colors.accent }: { name: string; size?: number; color?: string }) {
   return (
     <View style={{ width: size, height: size, borderRadius: size / 2.4, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: size * 0.38, lineHeight: size * 0.5 }} variant="bodyStrong">
+      <Text style={{ fontSize: size * 0.38, lineHeight: size * 0.5 }} variant="bodyStrong" color={textOn(color)}>
         {initials(name)}
       </Text>
     </View>
