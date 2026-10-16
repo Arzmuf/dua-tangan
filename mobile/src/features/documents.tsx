@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Linking, Platform, StyleSheet, View } from 'react-native';
 
 import { Button, IconButton } from '@/components/Button';
+import { ConfirmCard } from '@/components/ConfirmCard';
 import { Chips } from '@/components/Chips';
 import { Field } from '@/components/Field';
 import { ListRow } from '@/components/ListRow';
@@ -12,7 +13,6 @@ import { Text } from '@/components/Text';
 import { useToast } from '@/components/Toast';
 import { api, del, upload } from '@/lib/api';
 import { API_URL } from '@/lib/config';
-import { confirm } from '@/lib/confirm';
 import { day } from '@/lib/format';
 import { useAction } from '@/lib/queries';
 import type { DocumentCategory, FamilyDocument } from '@/lib/types';
@@ -58,32 +58,37 @@ export function DocumentRow({ doc }: { doc: FamilyDocument }) {
   const remove = useAction(() => del(`/documents/${doc.id}`), { success: 'Document removed' });
   const category = DOCUMENT_CATEGORIES[doc.category];
 
+  const [removing, setRemoving] = useState(false);
   const onOpen = () => openDocument(doc).catch((e) => toast.show(e instanceof Error ? e.message : 'Couldn’t open it', 'error'));
-  const onRemove = async () => {
-    const sure = await confirm(
-      'Remove this document?',
-      `“${doc.title}” will be removed for both of you. The info bank keeps a note that it was removed.`,
-      'Remove',
-    );
-    if (sure) remove.mutate();
-  };
 
   // The remove button sits over the row rather than inside it: a button can't contain another button.
   return (
-    <View>
-      <ListRow
-        tile={category.emoji}
-        tileColor={colors.primarySoft}
-        title={doc.title}
-        subtitle={`${category.label} · ${fileSize(doc.size)} · ${doc.uploaded_by.first_name}, ${day(doc.created_at)}`}
-        onPress={onOpen}
-        chevron={false}
-        right={doc.mine ? <View style={{ width: 36 }} /> : undefined}
-      />
-      {doc.mine ? (
-        <View style={styles.over}>
-          <IconButton icon="trash-outline" label="Remove document" color={colors.dangerDeep} background={colors.dangerSoft} size={36} onPress={onRemove} />
-        </View>
+    <View style={{ gap: 10 }}>
+      <View>
+        <ListRow
+          tile={category.emoji}
+          tileColor={colors.primarySoft}
+          title={doc.title}
+          subtitle={`${category.label} · ${fileSize(doc.size)} · ${doc.uploaded_by.first_name}, ${day(doc.created_at)}`}
+          onPress={onOpen}
+          chevron={false}
+          right={doc.mine ? <View style={{ width: 36 }} /> : undefined}
+        />
+        {doc.mine ? (
+          <View style={styles.over}>
+            <IconButton icon="trash-outline" label="Remove document" color={colors.dangerDeep} background={colors.dangerSoft} size={36} onPress={() => setRemoving(true)} />
+          </View>
+        ) : null}
+      </View>
+      {removing ? (
+        <ConfirmCard
+          title={`Remove “${doc.title}”?`}
+          message="It’s removed for both of you. The info bank keeps a note that it was removed."
+          action="Remove"
+          loading={remove.isPending}
+          onConfirm={() => remove.mutate()}
+          onCancel={() => setRemoving(false)}
+        />
       ) : null}
     </View>
   );

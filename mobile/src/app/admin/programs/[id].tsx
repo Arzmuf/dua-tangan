@@ -3,8 +3,9 @@ import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { EmptyState, Loading, SectionTitle } from '@/components/Bits';
-import { Button } from '@/components/Button';
+import { Button, IconButton } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { ConfirmCard } from '@/components/ConfirmCard';
 import { Chips } from '@/components/Chips';
 import { Field } from '@/components/Field';
 import { Hero } from '@/components/Hero';
@@ -13,7 +14,6 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { TOPICS } from '@/features/programs';
 import { api, del, post } from '@/lib/api';
-import { confirm } from '@/lib/confirm';
 import { dayTime, deviceTimeZone, groupDigits, parseAmount, rupiah } from '@/lib/format';
 import { useAction, useAdminBookings, useAdminProgram } from '@/lib/queries';
 import type { AdminProgram, Program, ProgramInput, ProgramTopic } from '@/lib/types';
@@ -95,11 +95,17 @@ function ProgramForm({ program, onBack }: { program: AdminProgram | null; onBack
       },
     },
   );
+  const [deleting, setDeleting] = useState(false);
   const remove = useAction(() => del(`/admin/programs/${program?.id}`), { success: 'Event deleted', onDone: onBack });
-  const onDelete = async () => {
-    const sure = await confirm('Delete this event?', 'It disappears for everyone. Events with bookings can only be hidden.', 'Delete');
-    if (sure) remove.mutate();
-  };
+  // Booked events can't be deleted (bookings are final), so the same step offers to hide them instead.
+  const hide = useAction(() => api<AdminProgram>(`/admin/programs/${program?.id}`, { method: 'PUT', body: { ...input, is_published: false } }), {
+    success: 'Event hidden from parents',
+    onDone: () => {
+      setPublished(false);
+      setDeleting(false);
+    },
+  });
+  const booked = !!program?.bookings_count;
 
   return (
     <Screen
@@ -108,6 +114,11 @@ function ProgramForm({ program, onBack }: { program: AdminProgram | null; onBack
         <Hero
           color={colors.primaryDeep}
           onBack={onBack}
+          right={
+            program ? (
+              <IconButton icon="trash-outline" label="Delete event" color={colors.dangerDeep} background={colors.dangerSoft} onPress={() => setDeleting(true)} />
+            ) : undefined
+          }
           title={program ? 'Edit event' : 'New event'}
           subtitle={program ? `${program.tickets_sold} of ${program.capacity} booked` : 'Parents see it on the support page once it’s published.'}
         />
@@ -122,6 +133,30 @@ function ProgramForm({ program, onBack }: { program: AdminProgram | null; onBack
         />
       }
     >
+      {deleting && program ? (
+        <View style={{ marginTop: 18 }}>
+          {booked ? (
+            <ConfirmCard
+              title="This event can't be deleted"
+              message={`${program.bookings_count} ${program.bookings_count === 1 ? 'booking is' : 'bookings are'} final, so the event has to stay. You can hide it from parents instead; people who booked keep their place.`}
+              action={program.is_published ? 'Hide event' : 'Already hidden'}
+              loading={hide.isPending}
+              onConfirm={() => (program.is_published ? hide.mutate() : setDeleting(false))}
+              onCancel={() => setDeleting(false)}
+            />
+          ) : (
+            <ConfirmCard
+              title={`Delete “${program.title}”?`}
+              message="It disappears for everyone. This can't be undone."
+              action="Delete event"
+              loading={remove.isPending}
+              onConfirm={() => remove.mutate()}
+              onCancel={() => setDeleting(false)}
+            />
+          )}
+        </View>
+      ) : null}
+
       <SectionTitle>The event</SectionTitle>
       <View style={styles.form}>
         <Field label="Title" value={title} onChangeText={setTitle} placeholder="e.g. Calm Co-Parenting Communication" />
@@ -199,7 +234,6 @@ function ProgramForm({ program, onBack }: { program: AdminProgram | null; onBack
       </Text>
 
       {program ? <Bookings program={program} /> : null}
-      {program ? <Button title="Delete event" variant="danger" loading={remove.isPending} onPress={onDelete} style={{ marginTop: 24 }} /> : null}
     </Screen>
   );
 }

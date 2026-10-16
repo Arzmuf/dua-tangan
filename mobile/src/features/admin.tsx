@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { Avatar, EmptyState, Loading } from '@/components/Bits';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { ConfirmCard } from '@/components/ConfirmCard';
 import { Chips } from '@/components/Chips';
 import { Field } from '@/components/Field';
 import { Pill } from '@/components/Pill';
@@ -13,7 +14,6 @@ import { Text } from '@/components/Text';
 import { TOPICS } from '@/features/programs';
 import { del, patch, post } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { confirm } from '@/lib/confirm';
 import { day, monthShort, rupiah, time } from '@/lib/format';
 import { useLastShown } from '@/lib/hooks';
 import { useAction, useAdminPrograms, useAdminUsers } from '@/lib/queries';
@@ -101,16 +101,10 @@ function UserForm({ user, onDone }: { user: AdminUser | null; onDone: () => void
     },
     { success: user ? 'Saved' : 'User created', onDone },
   );
+  const [deleting, setDeleting] = useState(false);
   const remove = useAction(() => del(`/admin/users/${user?.id}`), { success: 'User deleted', onDone });
-
-  const onDelete = async () => {
-    const sure = await confirm(
-      `Delete ${user?.full_name}?`,
-      'This removes their account for good. Parents in a family space can only be deactivated.',
-      'Delete',
-    );
-    if (sure) remove.mutate();
-  };
+  // Parents in a family space can't be deleted (their history is sealed), so the same step offers to deactivate.
+  const deactivate = useAction(() => patch(`/admin/users/${user?.id}`, { is_active: false }), { success: 'Account deactivated', onDone });
 
   const valid = name.trim() && email.includes('@') && (user ? !password || password.length >= 6 : password.length >= 6);
   return (
@@ -157,7 +151,28 @@ function UserForm({ user, onDone }: { user: AdminUser | null; onDone: () => void
         </View>
       ) : null}
       <Button title={user ? 'Save changes' : 'Create user'} size="lg" disabled={!valid} loading={save.isPending} onPress={() => save.mutate()} />
-      {user && !self ? <Button title="Delete user" variant="danger" loading={remove.isPending} onPress={onDelete} /> : null}
+      {user && !self && !deleting ? <Button title="Delete user" variant="danger" onPress={() => setDeleting(true)} /> : null}
+      {user && !self && deleting ? (
+        user.family ? (
+          <ConfirmCard
+            title={`${user.full_name} can't be deleted`}
+            message={`They're part of ${user.family.name}, and their messages and expenses belong to its sealed history. Deactivate the account instead, so they can't sign in.`}
+            action={user.is_active ? 'Deactivate' : 'Already deactivated'}
+            loading={deactivate.isPending}
+            onConfirm={() => (user.is_active ? deactivate.mutate() : setDeleting(false))}
+            onCancel={() => setDeleting(false)}
+          />
+        ) : (
+          <ConfirmCard
+            title={`Delete ${user.full_name}?`}
+            message="Their account is removed for good. This can't be undone."
+            action="Delete user"
+            loading={remove.isPending}
+            onConfirm={() => remove.mutate()}
+            onCancel={() => setDeleting(false)}
+          />
+        )
+      ) : null}
     </>
   );
 }

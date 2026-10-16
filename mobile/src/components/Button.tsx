@@ -6,7 +6,7 @@ import { ActivityIndicator, Platform, Pressable, StyleSheet, View, type StylePro
 import { colors, fonts, radius } from '@/theme';
 import { Text } from './Text';
 
-type Variant = 'primary' | 'soft' | 'outline' | 'ghost' | 'danger' | 'light';
+type Variant = 'primary' | 'soft' | 'outline' | 'ghost' | 'danger' | 'destructive' | 'light';
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
 const palette: Record<Variant, { bg: string; fg: string; border?: string }> = {
@@ -15,6 +15,7 @@ const palette: Record<Variant, { bg: string; fg: string; border?: string }> = {
   outline: { bg: colors.surface, fg: colors.ink, border: colors.border },
   ghost: { bg: 'transparent', fg: colors.primaryDeep },
   danger: { bg: colors.dangerSoft, fg: colors.dangerDeep },
+  destructive: { bg: colors.danger, fg: colors.white },
   light: { bg: 'rgba(255,255,255,0.85)', fg: colors.ink },
 };
 
