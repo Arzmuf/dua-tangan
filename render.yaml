@@ -21,6 +21,12 @@ services:
         generateValue: true
       - key: DEMO_TIME_ZONE
         value: Australia/Melbourne
+      # The first admin account, created on startup. Existing Blueprints don't prompt for new
+      # sync: false values, so add these two under the API's Environment settings.
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
 
   - type: web
     name: dua-tangan
