@@ -13,7 +13,7 @@ export type Family = {
   children: Child[];
 };
 
-export type User = { id: number; email: string; full_name: string; first_name: string };
+export type User = { id: number; email: string; full_name: string; first_name: string; is_admin: boolean };
 
 export type Me = { user: User; family: Family | null };
 
@@ -200,3 +200,34 @@ export type Home = {
   balance: Balance;
   record_count: number;
 };
+
+export type AdminStats = { parents: number; families: number; upcoming_programs: number; bookings: number; revenue: number };
+
+export type AdminUser = {
+  id: number;
+  full_name: string;
+  email: string;
+  is_admin: boolean;
+  is_active: boolean;
+  created_at: string;
+  family: { id: number; name: string } | null;
+};
+
+export type AdminProgram = Program & { tickets_sold: number; bookings_count: number; revenue: number };
+
+export type AdminBooking = {
+  id: number;
+  code: string;
+  tickets: number;
+  amount: number;
+  payment_method: PaymentMethod;
+  created_at: string;
+  name: string;
+  email: string;
+};
+
+/** What the admin form sends to create or update a program. */
+export type ProgramInput = Pick<
+  Program,
+  'title' | 'summary' | 'description' | 'topic' | 'format' | 'location' | 'starts_at' | 'duration_minutes' | 'price' | 'capacity' | 'host' | 'is_published'
+> & { practitioner_name: string; practitioner_title: string; practitioner_bio: string };

@@ -80,7 +80,10 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <Button title="Sign out" variant="danger" size="lg" onPress={signOut} style={{ marginTop: 28 }} />
+        {me.user.is_admin ? (
+          <Button title="Admin dashboard" icon="settings-outline" variant="outline" size="lg" onPress={() => router.push('/admin')} style={{ marginTop: 28 }} />
+        ) : null}
+        <Button title="Sign out" variant="danger" size="lg" onPress={signOut} style={{ marginTop: me.user.is_admin ? 12 : 28 }} />
         <Text variant="mono" color={colors.inkFaint} center style={{ marginTop: 14 }}>
           API · {API_URL}
         </Text>

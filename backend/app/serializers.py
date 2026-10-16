@@ -36,7 +36,7 @@ def family_out(family: Family) -> schemas.FamilyOut:
 def me_out(user: User) -> schemas.MeOut:
     return schemas.MeOut(
         user=schemas.UserOut(
-            id=user.id, email=user.email, full_name=user.full_name, first_name=user.first_name
+            id=user.id, email=user.email, full_name=user.full_name, first_name=user.first_name, is_admin=user.is_admin
         ),
         family=family_out(user.family) if user.family else None,
     )

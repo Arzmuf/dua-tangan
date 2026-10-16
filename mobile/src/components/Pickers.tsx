@@ -97,6 +97,11 @@ export function CalendarPicker({
 
 export type ClockTime = { h: number; m: number };
 
+/** The half-hour slot a date falls in, for TimePicker. */
+export const toClock = (d: Date): ClockTime => ({ h: d.getHours(), m: d.getMinutes() >= 30 ? 30 : 0 });
+/** A calendar day at a clock time, in the device's time zone. */
+export const combine = (d: Date, t: ClockTime) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), t.h, t.m);
+
 const SLOTS: ClockTime[] = [];
 for (let h = 6; h <= 21; h++) {
   SLOTS.push({ h, m: 0 }, { h, m: 30 });

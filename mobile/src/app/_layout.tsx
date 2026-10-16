@@ -63,6 +63,7 @@ function RootNavigator() {
 
   const signedIn = status === 'signedIn';
   const hasFamily = !!me?.family;
+  const isAdmin = !!me?.user.is_admin;
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
@@ -73,7 +74,12 @@ function RootNavigator() {
         <Stack.Screen name="programs/[id]" />
         <Stack.Screen name="profile" />
       </Stack.Protected>
-      <Stack.Protected guard={signedIn && !hasFamily}>
+      {/* Admins without a family space land in the admin area instead of onboarding. */}
+      <Stack.Protected guard={signedIn && isAdmin}>
+        <Stack.Screen name="admin/index" />
+        <Stack.Screen name="admin/programs/[id]" />
+      </Stack.Protected>
+      <Stack.Protected guard={signedIn && !hasFamily && !isAdmin}>
         <Stack.Screen name="onboarding" />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>

@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..deps import get_current_user
+from ..deps import DEACTIVATED, get_current_user
 from ..models import User
 from ..schemas import AuthOut, LoginIn, MeOut, RegisterIn, UpdateMeIn
 from ..security import create_token, hash_password, verify_password
@@ -28,6 +28,8 @@ def login(data: LoginIn, db: Session = Depends(get_db)):
     user = db.scalar(select(User).where(User.email == data.email.lower()))
     if user is None or not verify_password(data.password, user.password_hash):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email or password is incorrect.")
+    if not user.is_active:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, DEACTIVATED)
     return AuthOut(access_token=create_token(user.id), me=me_out(user))
 
 

@@ -10,6 +10,8 @@ from .security import decode_token
 
 bearer = HTTPBearer(auto_error=False)
 
+DEACTIVATED = "This account has been deactivated. Contact Dua Tangan support if you think this is a mistake."
+
 
 def get_current_user(
     creds: HTTPAuthorizationCredentials | None = Depends(bearer),
@@ -20,6 +22,14 @@ def get_current_user(
     user = db.get(User, decode_token(creds.credentials))
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Your session has expired. Please sign in again.")
+    if not user.is_active:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, DEACTIVATED)
+    return user
+
+
+def get_admin(user: User = Depends(get_current_user)) -> User:
+    if not user.is_admin:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can do that.")
     return user
 
 

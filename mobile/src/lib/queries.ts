@@ -4,6 +4,10 @@ import { useToast } from '@/components/Toast';
 import { useAuth } from './auth';
 import { api } from './api';
 import type {
+  AdminBooking,
+  AdminProgram,
+  AdminStats,
+  AdminUser,
   Booking,
   Counsellor,
   ExpensesResponse,
@@ -34,6 +38,7 @@ export const keys = {
   programs: ['programs'] as const,
   program: (id: number) => ['programs', id] as const,
   bookings: ['bookings'] as const,
+  admin: ['admin'] as const,
 };
 
 /** Queries that need a family only run once the signed-in parent has one. */
@@ -115,6 +120,38 @@ export function useProgram(id: number) {
 
 export function useBookings() {
   return useQuery({ queryKey: keys.bookings, queryFn: () => api<Booking[]>('/bookings') });
+}
+
+// Admin data shares the ['admin'] key prefix, so one invalidation refreshes all of it.
+export function useAdminStats() {
+  return useQuery({ queryKey: [...keys.admin, 'stats'], queryFn: () => api<AdminStats>('/admin/stats') });
+}
+
+export function useAdminUsers(search: string) {
+  return useQuery({
+    queryKey: [...keys.admin, 'users', search],
+    queryFn: () => api<AdminUser[]>(`/admin/users?q=${encodeURIComponent(search)}`),
+  });
+}
+
+export function useAdminPrograms() {
+  return useQuery({ queryKey: [...keys.admin, 'programs'], queryFn: () => api<AdminProgram[]>('/admin/programs') });
+}
+
+export function useAdminProgram(id: number | null) {
+  return useQuery({
+    queryKey: [...keys.admin, 'programs', id],
+    queryFn: () => api<AdminProgram>(`/admin/programs/${id}`),
+    enabled: id !== null,
+  });
+}
+
+export function useAdminBookings(programId: number | null) {
+  return useQuery({
+    queryKey: [...keys.admin, 'bookings', programId],
+    queryFn: () => api<AdminBooking[]>(`/admin/programs/${programId}/bookings`),
+    enabled: programId !== null,
+  });
 }
 
 /**

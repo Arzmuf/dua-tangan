@@ -28,6 +28,7 @@ class UserOut(Out):
     email: str
     full_name: str
     first_name: str
+    is_admin: bool
 
 
 class ChildOut(Out):
@@ -413,6 +414,64 @@ class BookingOut(Out):
     payment_method: PaymentMethod
     created_at: datetime
     program: ProgramOut
+
+
+# --- admin -----------------------------------------------------------------------------------
+
+
+class AdminStatsOut(Out):
+    parents: int
+    families: int
+    upcoming_programs: int
+    bookings: int
+    revenue: int
+
+
+class AdminFamilyOut(Out):
+    id: int
+    name: str
+
+
+class AdminUserOut(Out):
+    id: int
+    full_name: str
+    email: str
+    is_admin: bool
+    is_active: bool
+    created_at: datetime
+    family: AdminFamilyOut | None
+
+
+class AdminUserIn(In):
+    full_name: str = Field(min_length=1, max_length=120)
+    email: EmailStr
+    password: str = Field(min_length=6, max_length=128)
+    is_admin: bool = False
+
+
+class AdminUserUpdate(In):
+    full_name: str | None = Field(default=None, min_length=1, max_length=120)
+    email: EmailStr | None = None
+    password: str | None = Field(default=None, min_length=6, max_length=128)
+    is_admin: bool | None = None
+    is_active: bool | None = None
+
+
+class AdminProgramOut(ProgramOut):
+    tickets_sold: int
+    bookings_count: int
+    revenue: int
+
+
+class AdminBookingOut(Out):
+    id: int
+    code: str
+    tickets: int
+    amount: int
+    payment_method: PaymentMethod
+    created_at: datetime
+    name: str
+    email: str
 
 
 # --- home ------------------------------------------------------------------------------------

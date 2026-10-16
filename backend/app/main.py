@@ -6,8 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .db import SessionLocal
 from .migrate import migrate
-from .routers import auth, documents, events, expenses, family, home, info, messages, programs, record, support
+from .routers import admin, auth, documents, events, expenses, family, home, info, messages, programs, record, support
 from .seed import ensure_counsellors, seed_demo_if_empty
+from .services.accounts import ensure_admin
 
 
 @asynccontextmanager
@@ -15,6 +16,7 @@ async def lifespan(_: FastAPI):
     migrate()
     with SessionLocal() as db:
         ensure_counsellors(db)
+        ensure_admin(db)
         if settings.seed_demo:
             seed_demo_if_empty(db)
     yield
@@ -29,7 +31,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for module in (auth, family, home, events, expenses, messages, info, record, documents, support, programs):
+for module in (auth, family, home, events, expenses, messages, info, record, documents, support, programs, admin):
     app.include_router(module.router)
 
 

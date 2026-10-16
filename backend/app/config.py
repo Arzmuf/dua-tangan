@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     seed_demo: bool = True
     # IANA zone for the demo family, e.g. "Asia/Jakarta". Defaults to this machine's zone.
     demo_time_zone: str | None = None
+    # The first admin, created (or, given the right password, promoted) on startup. Set both or neither.
+    admin_email: str | None = None
+    admin_password: str | None = None
 
     @field_validator("database_url")
     @classmethod

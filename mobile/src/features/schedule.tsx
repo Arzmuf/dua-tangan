@@ -6,7 +6,7 @@ import { Button } from '@/components/Button';
 import { Chips } from '@/components/Chips';
 import { Field } from '@/components/Field';
 import { DateTile, ListRow } from '@/components/ListRow';
-import { CalendarPicker, TimePicker, type ClockTime } from '@/components/Pickers';
+import { CalendarPicker, combine, TimePicker, toClock, type ClockTime } from '@/components/Pickers';
 import { Pill } from '@/components/Pill';
 import { Sheet } from '@/components/Sheet';
 import { Text } from '@/components/Text';
@@ -56,8 +56,6 @@ const SUCCESS: Record<string, string> = {
   'check-in': "Checked in — it's on the record",
 };
 
-const toClock = (d: Date): ClockTime => ({ h: d.getHours(), m: d.getMinutes() >= 30 ? 30 : 0 });
-const combine = (d: Date, t: ClockTime) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), t.h, t.m);
 
 /** Details and every action a parent can take on one handoff. */
 export function EventSheet({ event, onClose }: { event: HandoffEvent | null; onClose: () => void }) {

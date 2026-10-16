@@ -14,6 +14,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
+from sqlalchemy.sql.expression import false, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -51,6 +52,9 @@ class User(Base):
     family_id: Mapped[int | None] = mapped_column(
         ForeignKey("families.id", ondelete="SET NULL"), index=True
     )
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    # Deactivated accounts can't sign in; they stay so the family's shared history keeps its author.
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     family: Mapped[Family | None] = relationship(back_populates="members")

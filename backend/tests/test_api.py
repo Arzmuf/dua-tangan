@@ -1,7 +1,7 @@
 import hashlib
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import text
+from sqlalchemy import select, text
 
 from app.config import Settings
 from app.db import SessionLocal, engine
@@ -386,3 +386,106 @@ def test_demo_seed(client):
     reza_home = client.get("/home", headers=reza).json()
     assert reza_home["pending_events"] == [] and reza_home["pending_expenses"] == []
     assert reza_home["waiting_on_partner"] == 3
+
+
+def make_admin(client, email: str = "ada@example.com") -> dict:
+    headers = signup(client, "Ada Admin", email)
+    with SessionLocal() as db:
+        db.execute(text("UPDATE users SET is_admin = true WHERE email = :email"), {"email": email})
+        db.commit()
+    return headers
+
+
+def test_admin_manages_users(client, parents):
+    nadia = parents["nadia"]
+    assert client.get("/admin/users", headers=nadia).status_code == 403
+    admin = make_admin(client)
+    assert client.get("/me", headers=admin).json()["user"]["is_admin"] is True
+
+    new = {"full_name": "Dina Dewi", "email": "Dina@Example.com", "password": "secret123"}
+    res = client.post("/admin/users", json=new, headers=admin)
+    assert res.status_code == 201, res.text
+    dina = res.json()
+    assert (dina["email"], dina["is_admin"], dina["family"]) == ("dina@example.com", False, None)
+    assert [u["email"] for u in client.get("/admin/users?q=dina", headers=admin).json()] == ["dina@example.com"]
+    assert client.post("/admin/users", json=new, headers=admin).status_code == 409
+
+    res = client.patch(f"/admin/users/{dina['id']}", json={"full_name": "Dina D.", "password": "newpass99"}, headers=admin)
+    assert res.json()["full_name"] == "Dina D."
+    assert client.post("/auth/login", json={"email": "dina@example.com", "password": "newpass99"}).status_code == 200
+    assert client.delete(f"/admin/users/{dina['id']}", headers=admin).status_code == 204
+
+    # A parent with shared history can only be deactivated, and that ends their session.
+    nadia_id = client.get("/me", headers=nadia).json()["user"]["id"]
+    res = client.delete(f"/admin/users/{nadia_id}", headers=admin)
+    assert res.status_code == 409 and "Deactivate" in res.json()["detail"]
+    assert client.patch(f"/admin/users/{nadia_id}", json={"is_active": False}, headers=admin).status_code == 200
+    assert client.get("/me", headers=nadia).status_code == 401
+    assert client.post("/auth/login", json={"email": "nadia@example.com", "password": "secret123"}).status_code == 403
+
+    admin_id = client.get("/me", headers=admin).json()["user"]["id"]
+    assert client.patch(f"/admin/users/{admin_id}", json={"is_admin": False}, headers=admin).status_code == 409
+    assert client.delete(f"/admin/users/{admin_id}", headers=admin).status_code == 409
+
+
+def test_admin_manages_programs(client, parents):
+    nadia, admin = parents["nadia"], make_admin(client)
+    program = {
+        "title": "Co-parenting Q&A",
+        "summary": "Bring your questions.",
+        "description": "An hour of answers.",
+        "topic": "co-parenting",
+        "format": "online",
+        "location": "Online via Zoom",
+        "starts_at": (datetime.now(timezone.utc) + timedelta(days=10)).isoformat(),
+        "duration_minutes": 60,
+        "price": 75_000,
+        "capacity": 10,
+        "practitioner_name": "Dr. Amelia Wijaya, Psikolog",
+        "practitioner_title": "Co-parenting counsellor",
+        "practitioner_bio": "Twelve years with separated parents.",
+    }
+    assert client.post("/admin/programs", json=program, headers=nadia).status_code == 403
+    res = client.post("/admin/programs", json=program, headers=admin)
+    assert res.status_code == 201, res.text
+    pid = res.json()["id"]
+    listed = lambda: [p["id"] for p in client.get("/programs", headers=nadia).json()]  # noqa: E731
+    assert pid in listed()
+
+    assert client.put(f"/admin/programs/{pid}", json={**program, "is_published": False}, headers=admin).status_code == 200
+    assert pid not in listed()
+    client.put(f"/admin/programs/{pid}", json=program, headers=admin)
+    order = {"tickets": 2, "payment_method": "card", "accept_no_refunds": True}
+    assert client.post(f"/programs/{pid}/book", json=order, headers=nadia).status_code == 201
+
+    # Once booked, it can't shrink below the tickets sold or be deleted, only unpublished.
+    assert client.put(f"/admin/programs/{pid}", json={**program, "capacity": 1}, headers=admin).status_code == 409
+    assert client.delete(f"/admin/programs/{pid}", headers=admin).status_code == 409
+    [booking] = client.get(f"/admin/programs/{pid}/bookings", headers=admin).json()
+    assert (booking["tickets"], booking["email"]) == (2, "nadia@example.com")
+    summary = next(p for p in client.get("/admin/programs", headers=admin).json() if p["id"] == pid)
+    assert (summary["tickets_sold"], summary["bookings_count"], summary["revenue"]) == (2, 1, 150_000)
+    stats = client.get("/admin/stats", headers=admin).json()
+    assert (stats["bookings"], stats["revenue"]) == (1, 150_000)
+
+    spare = client.post("/admin/programs", json={**program, "title": "Spare"}, headers=admin).json()
+    assert client.delete(f"/admin/programs/{spare['id']}", headers=admin).status_code == 204
+
+
+def test_first_admin_from_settings(client, monkeypatch):
+    from app.config import settings
+    from app.models import User
+    from app.services.accounts import ensure_admin
+
+    signup(client, "Mallory", "boss@example.com")  # signed up first, with their own password
+    monkeypatch.setattr(settings, "admin_email", "boss@example.com")
+    monkeypatch.setattr(settings, "admin_password", "the-real-admin-password")
+    with SessionLocal() as db:
+        ensure_admin(db)
+        assert db.scalar(select(User.is_admin).where(User.email == "boss@example.com")) is False
+
+    monkeypatch.setattr(settings, "admin_email", "owner@example.com")
+    with SessionLocal() as db:
+        ensure_admin(db)
+    res = client.post("/auth/login", json={"email": "owner@example.com", "password": "the-real-admin-password"})
+    assert res.json()["me"]["user"]["is_admin"] is True
