@@ -139,18 +139,22 @@ const byKey = (key: TemplateCategory) => CATEGORIES.find((c) => c.key === key) ?
 
 function TemplateRow({ text, own, onPress }: { text: string; own?: MessageTemplate; onPress: () => void }) {
   const remove = useAction(() => del(`/messages/templates/${own?.id}`), { success: 'Template removed' });
+  // The delete button sits over the row rather than inside it: a button can't contain another button.
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.template, pressed && { opacity: 0.8 }]}>
-      <View style={{ flex: 1, gap: 6 }}>
-        <Text variant="small">{text}</Text>
-        {own ? <Pill label="Yours" tone="info" /> : null}
-      </View>
+    <View>
+      <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.template, pressed && { opacity: 0.8 }]}>
+        <View style={{ flex: 1, gap: 6 }}>
+          <Text variant="small">{text}</Text>
+          {own ? <Pill label="Yours" tone="info" /> : null}
+        </View>
+        {own ? <View style={{ width: 36 }} /> : <Ionicons name="arrow-forward" size={18} color={colors.inkFaint} />}
+      </Pressable>
       {own ? (
-        <IconButton icon="trash-outline" label="Delete template" color={colors.dangerDeep} background={colors.surface} size={36} onPress={() => remove.mutate()} />
-      ) : (
-        <Ionicons name="arrow-forward" size={18} color={colors.inkFaint} />
-      )}
-    </Pressable>
+        <View style={styles.over}>
+          <IconButton icon="trash-outline" label="Delete template" color={colors.dangerDeep} background={colors.surface} size={36} onPress={() => remove.mutate()} />
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -181,4 +185,5 @@ const styles = StyleSheet.create({
   list: { gap: 10 },
   back: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', paddingVertical: 4 },
   template: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.field, borderRadius: radius.lg, padding: 14 },
+  over: { position: 'absolute', right: 14, top: 0, bottom: 0, justifyContent: 'center' },
 });

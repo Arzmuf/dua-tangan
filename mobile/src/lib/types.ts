@@ -108,7 +108,23 @@ export type RecordResponse = {
   entries: RecordEntry[];
   count: number;
   flagged_count: number;
+  kind_counts: Record<string, number>;
   verification: Verification;
+};
+
+export type DocumentCategory = 'birth-certificate' | 'medical' | 'school' | 'legal' | 'id' | 'other';
+
+export type FamilyDocument = {
+  id: number;
+  title: string;
+  category: DocumentCategory;
+  filename: string;
+  content_type: string;
+  size: number;
+  sha256: string;
+  created_at: string;
+  uploaded_by: Person;
+  mine: boolean;
 };
 
 export type Report = {

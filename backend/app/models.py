@@ -9,6 +9,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    LargeBinary,
     String,
     Text,
     UniqueConstraint,
@@ -281,3 +282,25 @@ class Booking(Base):
 
     program: Mapped[Program] = relationship(back_populates="bookings")
     user: Mapped[User] = relationship()
+
+
+class Document(Base):
+    """A file kept in the info bank (birth certificate, medical letter...). Its SHA-256 goes into the
+    record when it is uploaded, so a changed file can be told apart from the original."""
+
+    __tablename__ = "documents"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    family_id: Mapped[int] = mapped_column(ForeignKey("families.id", ondelete="CASCADE"), index=True)
+    uploaded_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    title: Mapped[str] = mapped_column(String(120))
+    category: Mapped[str] = mapped_column(String(24))
+    filename: Mapped[str] = mapped_column(String(200))
+    content_type: Mapped[str] = mapped_column(String(120))
+    size: Mapped[int] = mapped_column(Integer)
+    sha256: Mapped[str] = mapped_column(String(64))
+    # The bytes stay in the database (Render's free disk is wiped on deploy); only loaded on download.
+    data: Mapped[bytes] = mapped_column(LargeBinary, deferred=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    uploaded_by: Mapped[User] = relationship()

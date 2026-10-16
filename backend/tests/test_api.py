@@ -1,3 +1,4 @@
+import hashlib
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import text
@@ -252,6 +253,45 @@ def test_booking_a_program(client, parents):
     res = client.post(f"/programs/{free['id']}/book", json={**order, "accept_no_refunds": True}, headers=nadia)
     assert res.status_code == 409
     assert free["id"] not in [p["id"] for p in client.get("/programs", headers=nadia).json()]
+
+
+def test_documents_in_the_info_bank(client, parents):
+    nadia, reza = parents["nadia"], parents["reza"]
+    pdf = b"%PDF-1.4 Kirana's birth certificate"
+    form = {"title": "Birth certificate", "category": "birth-certificate"}
+    res = client.post("/documents", data=form, files={"file": ("akta-kirana.pdf", pdf, "application/pdf")}, headers=nadia)
+    assert res.status_code == 201, res.text
+    doc = res.json()
+    assert (doc["sha256"], doc["size"], doc["mine"]) == (hashlib.sha256(pdf).hexdigest(), len(pdf), True)
+
+    # Reza sees it, and the upload is sealed into the record with the file's hash.
+    [seen] = client.get("/documents", headers=reza).json()
+    assert (seen["title"], seen["mine"]) == ("Birth certificate", False)
+    record = client.get("/record?kinds=document", headers=reza).json()
+    assert record["kind_counts"]["document"] == 1 and {e["kind"] for e in record["entries"]} == {"document"}
+    assert doc["sha256"][:16] in record["entries"][0]["summary"]
+
+    # A download link works without the bearer token, for that one file, and can't be used to sign in.
+    path = client.get(f"/documents/{doc['id']}/link", headers=reza).json()["path"]
+    res = client.get(path)
+    assert (res.status_code, res.content, res.headers["content-type"]) == (200, pdf, "application/pdf")
+    token = path.split("token=")[1]
+    assert client.get("/me", headers={"Authorization": f"Bearer {token}"}).status_code == 401
+    assert client.get(f"/documents/{doc['id'] + 1}/file?token={token}").status_code == 403
+
+    stranger = signup(client, "Sam Stranger", "stranger@example.com")
+    client.post("/families", json={"child_name": "Ari", "time_zone": "Asia/Jakarta"}, headers=stranger)
+    assert client.get(f"/documents/{doc['id']}/link", headers=stranger).status_code == 404
+
+    big = b"0" * (5 * 1024 * 1024 + 1)
+    assert client.post("/documents", data=form, files={"file": ("big.pdf", big, "application/pdf")}, headers=nadia).status_code == 413
+    exe = {"file": ("setup.exe", b"MZ", "application/octet-stream")}
+    assert client.post("/documents", data=form, files=exe, headers=nadia).status_code == 415
+
+    assert client.delete(f"/documents/{doc['id']}", headers=reza).status_code == 403  # only the uploader
+    assert client.delete(f"/documents/{doc['id']}", headers=nadia).status_code == 204
+    assert client.get("/documents", headers=nadia).json() == []
+    assert client.get(path).status_code == 404
 
 
 def test_hosted_database_urls_use_psycopg():

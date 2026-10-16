@@ -27,7 +27,7 @@ function buildHtml(r: Report): string {
     ? `<div class="ok">✓ Integrity verified — all ${r.verification.count} entries match their hash chain.</div>`
     : `<div class="bad">⚠ Integrity check failed at entry #${r.verification.broken_seq}. The record may have been altered.</div>`;
 
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Dua Tangan activity report</title>
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Dua Tangan info bank report</title>
   <style>
     body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${colors.ink};margin:32px;font-size:12px}
     h1{font-size:22px;margin:0 0 4px} .muted{color:${colors.inkMuted}}
@@ -40,7 +40,7 @@ function buildHtml(r: Report): string {
     tr.flag td{background:${colors.dangerSoft}80} .tag{background:${colors.dangerSoft};color:${colors.dangerDeep};border-radius:6px;padding:1px 6px;font-size:10px;font-weight:600}
     footer{margin-top:18px;font-size:10px;color:${colors.inkFaint}}
   </style></head><body>
-  <h1>Dua Tangan — Activity report</h1>
+  <h1>Dua Tangan — Info bank report</h1>
   <div class="muted">${parents}${kids ? ` · ${kids}` : ''} · ${r.entries.length} entries</div>
   <div class="muted">Generated ${escape(dayTime(r.generated_at))} · times shown in this device's time zone</div>
   ${verified}
@@ -75,7 +75,7 @@ export async function exportReport(): Promise<void> {
   }
   const { uri } = await Print.printToFileAsync({ html });
   if (await Sharing.isAvailableAsync()) {
-    await Sharing.shareAsync(uri, { mimeType: 'application/pdf', UTI: 'com.adobe.pdf', dialogTitle: 'Share activity report' });
+    await Sharing.shareAsync(uri, { mimeType: 'application/pdf', UTI: 'com.adobe.pdf', dialogTitle: 'Share info bank report' });
   } else {
     await Print.printAsync({ uri });
   }

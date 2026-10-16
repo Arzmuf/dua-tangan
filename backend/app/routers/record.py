@@ -19,10 +19,13 @@ def verification(ctx: Ctx) -> VerificationOut:
 def read_record(
     ctx: Ctx = Depends(get_ctx),
     flagged: bool = False,
+    kinds: str | None = Query(None, description="Comma-separated, e.g. message,expense"),
     limit: int = Query(300, ge=1, le=1000),
 ):
     in_family = RecordEntry.family_id == ctx.family.id
     query = select(RecordEntry).where(in_family)
+    if kinds:
+        query = query.where(RecordEntry.kind.in_(kinds.split(",")))
     if flagged:
         query = query.where(RecordEntry.flagged.is_(True))
     entries = ctx.db.scalars(query.order_by(RecordEntry.seq.desc()).limit(limit)).all()
@@ -30,10 +33,14 @@ def read_record(
     flagged_count = ctx.db.scalar(
         select(func.count()).select_from(RecordEntry).where(in_family, RecordEntry.flagged.is_(True))
     )
+    kind_counts = ctx.db.execute(
+        select(RecordEntry.kind, func.count()).where(in_family).group_by(RecordEntry.kind)
+    ).all()
     return RecordOut(
         entries=[entry_out(e) for e in entries],
         count=count or 0,
         flagged_count=flagged_count or 0,
+        kind_counts=dict(kind_counts),
         verification=verification(ctx),
     )
 

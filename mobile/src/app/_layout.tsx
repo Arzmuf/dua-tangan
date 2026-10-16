@@ -68,7 +68,7 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
       <Stack.Protected guard={signedIn && hasFamily}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="record" />
+        <Stack.Screen name="info-bank" />
         <Stack.Screen name="support" />
         <Stack.Screen name="programs/[id]" />
         <Stack.Screen name="profile" />

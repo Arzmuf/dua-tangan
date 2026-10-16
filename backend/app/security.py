@@ -31,6 +31,28 @@ def create_token(user_id: int) -> str:
 def decode_token(token: str) -> int:
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=[ALGORITHM])
+        if "doc" in payload:  # a download link, not a sign-in
+            raise ValueError
         return int(payload["sub"])
     except (jwt.PyJWTError, KeyError, ValueError):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Your session has expired. Please sign in again.")
+
+
+# Documents open in the browser, which can't send the app's bearer token, so the app asks for a
+# short-lived link that only works for that one file.
+FILE_LINK_MINUTES = 5
+
+
+def create_file_token(user_id: int, document_id: int) -> str:
+    payload = {"sub": str(user_id), "doc": document_id, "exp": utcnow() + timedelta(minutes=FILE_LINK_MINUTES)}
+    return jwt.encode(payload, settings.jwt_secret, algorithm=ALGORITHM)
+
+
+def decode_file_token(token: str, document_id: int) -> int:
+    try:
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=[ALGORITHM])
+        if payload.get("doc") != document_id:
+            raise ValueError
+        return int(payload["sub"])
+    except (jwt.PyJWTError, KeyError, ValueError):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "This link has expired. Open the document again from the app.")

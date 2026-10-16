@@ -83,11 +83,11 @@ export default function HomeScreen() {
 
             <View style={[styles.stack, { marginTop: 14 }]}>
               <ListRow
-                tile="🛡️"
+                tile="🗂️"
                 tileColor={colors.primarySoft}
-                title="Shared record"
-                subtitle={`${home.record_count} entries, time-stamped and sealed`}
-                onPress={() => router.push('/record')}
+                title="Info bank"
+                subtitle={`${home.record_count} sealed entries, plus your documents`}
+                onPress={() => router.push('/info-bank')}
               />
               <ListRow
                 tile="🌿"

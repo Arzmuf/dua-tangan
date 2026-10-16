@@ -76,10 +76,10 @@ export default function MessagesScreen() {
         <View style={{ flex: 1 }}>
           <Text variant="heading">{partner ? partner.first_name : 'Messages'}</Text>
           <Text variant="small" color={colors.inkMuted} numberOfLines={1}>
-            About {kidsLabel(home?.children)} · kept in your shared record
+            About {kidsLabel(home?.children)} · kept in your info bank
           </Text>
         </View>
-        <IconButton icon="shield-checkmark-outline" label="Shared record" background={colors.primarySoft} onPress={() => router.push('/record')} />
+        <IconButton icon="shield-checkmark-outline" label="Info bank" background={colors.primarySoft} onPress={() => router.push('/info-bank')} />
       </View>
 
       {home && !partner ? (
@@ -240,7 +240,7 @@ function Composer({
           {confirmHeated ? (
             <View style={styles.toneActions}>
               <Text variant="tiny" color={colors.inkMuted} style={{ flex: 1 }}>
-                It will be marked as heated in your shared record.
+                It will be marked as heated in your info bank.
               </Text>
               <Button title="Send anyway" size="sm" variant="danger" loading={send.isPending} onPress={() => send.mutate()} />
             </View>

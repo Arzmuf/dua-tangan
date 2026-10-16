@@ -8,6 +8,7 @@ import type {
   Counsellor,
   ExpensesResponse,
   Family,
+  FamilyDocument,
   HandoffEvent,
   Home,
   InfoItem,
@@ -25,7 +26,8 @@ export const keys = {
   messages: ['messages'] as const,
   templates: ['templates'] as const,
   info: (childId: number) => ['info', childId] as const,
-  record: (flagged: boolean) => ['record', flagged] as const,
+  record: (kinds: string, flagged: boolean) => ['record', kinds, flagged] as const,
+  documents: ['documents'] as const,
   family: ['family'] as const,
   counsellors: ['counsellors'] as const,
   supportRequests: ['support-requests'] as const,
@@ -73,11 +75,18 @@ export function useInfo(childId: number | undefined) {
   });
 }
 
-export function useRecord(flagged: boolean) {
+/** The info bank's sealed entries, optionally only some kinds (e.g. message and expense). */
+export function useRecord(kinds: string[] = [], flagged = false) {
+  const filter = kinds.join(',');
+  const query = [filter && `kinds=${filter}`, flagged && 'flagged=true'].filter(Boolean).join('&');
   return useQuery({
-    queryKey: keys.record(flagged),
-    queryFn: () => api<RecordResponse>(`/record${flagged ? '?flagged=true' : ''}`),
+    queryKey: keys.record(filter, flagged),
+    queryFn: () => api<RecordResponse>(`/record${query ? `?${query}` : ''}`),
   });
+}
+
+export function useDocuments() {
+  return useQuery({ queryKey: keys.documents, queryFn: () => api<FamilyDocument[]>('/documents') });
 }
 
 export function useFamily() {

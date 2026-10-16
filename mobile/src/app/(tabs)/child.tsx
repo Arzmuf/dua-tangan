@@ -179,7 +179,7 @@ function InfoSheet({
       visible={!!editing}
       onClose={onClose}
       title={item ? 'Edit detail' : `Add to ${childName}’s info`}
-      subtitle="Both parents see changes right away, and they’re noted in the record."
+      subtitle="Both parents see changes right away, and they’re noted in the info bank."
     >
       <InfoForm key={item?.id ?? 'new'} item={item} childId={childId} defaultCategory={defaultCategory} onDone={onClose} />
     </Sheet>

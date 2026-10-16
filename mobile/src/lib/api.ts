@@ -36,7 +36,9 @@ function errorMessage(status: number, body: unknown): string {
 
 export async function api<T>(path: string, options: { method?: string; body?: unknown } = {}): Promise<T> {
   const headers: Record<string, string> = { Accept: 'application/json' };
-  if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+  // FormData (file uploads) sets its own multipart Content-Type and boundary.
+  const form = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  if (options.body !== undefined && !form) headers['Content-Type'] = 'application/json';
   if (authToken) headers.Authorization = `Bearer ${authToken}`;
 
   let res: Response;
@@ -44,7 +46,7 @@ export async function api<T>(path: string, options: { method?: string; body?: un
     res = await fetch(`${API_URL}${path}`, {
       method: options.method ?? 'GET',
       headers,
-      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      body: options.body === undefined ? undefined : form ? (options.body as FormData) : JSON.stringify(options.body),
     });
   } catch {
     throw new ApiError(0, `Can't reach the server at ${API_URL}. Is the API running?`);
@@ -62,3 +64,4 @@ export async function api<T>(path: string, options: { method?: string; body?: un
 export const post = <T>(path: string, body?: unknown) => api<T>(path, { method: 'POST', body: body ?? {} });
 export const patch = <T>(path: string, body: unknown) => api<T>(path, { method: 'PATCH', body });
 export const del = <T = void>(path: string) => api<T>(path, { method: 'DELETE' });
+export const upload = <T>(path: string, form: FormData) => api<T>(path, { method: 'POST', body: form });

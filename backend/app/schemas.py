@@ -278,6 +278,7 @@ class RecordOut(Out):
     entries: list[RecordEntryOut]
     count: int
     flagged_count: int
+    kind_counts: dict[str, int]
     verification: VerificationOut
 
 
@@ -289,6 +290,29 @@ class ReportOut(Out):
     generated_at: datetime
     verification: VerificationOut
     entries: list[RecordEntryOut]
+
+
+# --- documents -------------------------------------------------------------------------------
+
+DocumentCategory = Literal["birth-certificate", "medical", "school", "legal", "id", "other"]
+
+
+class DocumentOut(Out):
+    id: int
+    title: str
+    category: DocumentCategory
+    filename: str
+    content_type: str
+    size: int
+    sha256: str
+    created_at: datetime
+    uploaded_by: Person
+    mine: bool
+
+
+class DocumentLinkOut(Out):
+    path: str  # relative to the API, valid until expires_at
+    expires_at: datetime
 
 
 # --- support ---------------------------------------------------------------------------------
