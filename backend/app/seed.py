@@ -15,8 +15,9 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from .config import settings
-from .db import Base, SessionLocal, engine
+from .db import SessionLocal
 from .fmt import DEFAULT_TZ, excerpt, info_line, rupiah, when
+from .migrate import drop_everything, migrate
 from .models import Child, Counsellor, Event, Expense, Family, InfoItem, Message, User, utcnow
 from .security import hash_password
 from .services.record import log_event
@@ -390,8 +391,8 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.reset:
-        Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+        drop_everything()
+    migrate()
     with SessionLocal() as db:
         ensure_counsellors(db)
         if db.scalar(select(func.count()).select_from(User)):

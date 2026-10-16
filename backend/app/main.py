@@ -4,14 +4,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .db import Base, SessionLocal, engine
+from .db import SessionLocal
+from .migrate import migrate
 from .routers import auth, events, expenses, family, home, info, messages, record, support
 from .seed import ensure_counsellors, seed_demo_if_empty
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    Base.metadata.create_all(engine)
+    migrate()
     with SessionLocal() as db:
         ensure_counsellors(db)
         if settings.seed_demo:
