@@ -37,8 +37,9 @@ services:
         source: /*
         destination: /index.html
     envVars:
+      # Exact version: its bundled npm (11.19.1) decides whether npm ci accepts the lockfile.
       - key: NODE_VERSION
-        value: "24"
+        value: "24.22.0"
       # Baked into the web build. Update it if Render gives the API a different address.
       - key: EXPO_PUBLIC_API_URL
         value: https://dua-tangan-api.onrender.com
