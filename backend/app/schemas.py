@@ -211,6 +211,21 @@ class MessageOut(Out):
     mine: bool
 
 
+TemplateCategory = Literal["health", "schedule", "expenses", "check-in"]
+
+
+class TemplateIn(In):
+    category: TemplateCategory
+    body: str = Field(min_length=1, max_length=500)
+
+
+class TemplateOut(Out):
+    id: int
+    category: TemplateCategory
+    body: str
+    created_at: datetime
+
+
 # --- child info ------------------------------------------------------------------------------
 
 InfoCategory = Literal["health", "school", "contacts", "other"]

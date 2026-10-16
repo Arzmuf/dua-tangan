@@ -17,10 +17,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar, EmptyState } from '@/components/Bits';
 import { Button, IconButton } from '@/components/Button';
-import { ListRow } from '@/components/ListRow';
 import { Pill } from '@/components/Pill';
-import { Sheet } from '@/components/Sheet';
 import { Text } from '@/components/Text';
+import { QuickMessagesSheet } from '@/features/quickMessages';
 import { InviteCard } from '@/features/requests';
 import { post } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -153,13 +152,6 @@ function Bubble({ message: m }: { message: Message }) {
     </View>
   );
 }
-
-const templates = (partner: string, child: string) => [
-  { emoji: '🩺', title: 'Health update', text: `Health update: ${child} is doing well today. ` },
-  { emoji: '📅', title: 'Schedule question', text: `Hi ${partner}, could we look at the handoff on ` },
-  { emoji: '💸', title: 'Expense', text: `I added an expense for ${child} — could you take a look when you have a moment?` },
-  { emoji: '👋', title: 'Check-in', text: `Hi ${partner}, just checking in — how was ${child}'s day?` },
-];
 
 function Composer({
   partnerName,
@@ -299,20 +291,16 @@ function Composer({
         </Pressable>
       </View>
 
-      <Sheet visible={showTemplates} onClose={() => setShowTemplates(false)} title="Quick messages" subtitle="Start from a calm, clear template.">
-        {templates(partnerName, childName).map((t) => (
-          <ListRow
-            key={t.title}
-            tile={t.emoji}
-            title={t.title}
-            subtitle={t.text}
-            onPress={() => {
-              setText(t.text);
-              setShowTemplates(false);
-            }}
-          />
-        ))}
-      </Sheet>
+      <QuickMessagesSheet
+        visible={showTemplates}
+        onClose={() => setShowTemplates(false)}
+        partnerName={partnerName}
+        childName={childName}
+        onPick={(t) => {
+          setText(t);
+          setShowTemplates(false);
+        }}
+      />
     </View>
   );
 }

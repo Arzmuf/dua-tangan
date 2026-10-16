@@ -215,3 +215,15 @@ class SupportRequest(Base):
 
     counsellor: Mapped[Counsellor] = relationship()
     requested_by: Mapped[User] = relationship()
+
+
+class MessageTemplate(Base):
+    """A parent's own quick message, listed after the built-in ones in its category."""
+
+    __tablename__ = "message_templates"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    category: Mapped[str] = mapped_column(String(24))
+    body: Mapped[str] = mapped_column(String(500))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

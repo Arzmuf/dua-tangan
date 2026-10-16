@@ -200,6 +200,19 @@ def test_tone_rules():
     assert check_tone("Kirana lagi males makan, tolong dicek ya").tone == "calm"
 
 
+def test_message_templates_are_personal(client, parents):
+    nadia, reza = parents["nadia"], parents["reza"]
+    res = client.post("/messages/templates", json={"category": "health", "body": "Kirana took her medicine at 8"}, headers=nadia)
+    assert res.status_code == 201, res.text
+    template_id = res.json()["id"]
+    assert [t["body"] for t in client.get("/messages/templates", headers=nadia).json()] == ["Kirana took her medicine at 8"]
+    assert client.get("/messages/templates", headers=reza).json() == []
+    assert client.delete(f"/messages/templates/{template_id}", headers=reza).status_code == 404
+    assert client.post("/messages/templates", json={"category": "gossip", "body": "x"}, headers=nadia).status_code == 422
+    assert client.delete(f"/messages/templates/{template_id}", headers=nadia).status_code == 204
+    assert client.get("/messages/templates", headers=nadia).json() == []
+
+
 def test_hosted_database_urls_use_psycopg():
     neon = "postgresql://app:pw@ep-calm-1.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
     assert Settings(database_url=neon).database_url == neon.replace("postgresql://", "postgresql+psycopg://")

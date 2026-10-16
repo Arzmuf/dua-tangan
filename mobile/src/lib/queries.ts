@@ -11,6 +11,7 @@ import type {
   Home,
   InfoItem,
   Message,
+  MessageTemplate,
   RecordResponse,
   SupportRequest,
 } from './types';
@@ -20,6 +21,7 @@ export const keys = {
   events: ['events'] as const,
   expenses: ['expenses'] as const,
   messages: ['messages'] as const,
+  templates: ['templates'] as const,
   info: (childId: number) => ['info', childId] as const,
   record: (flagged: boolean) => ['record', flagged] as const,
   family: ['family'] as const,
@@ -52,6 +54,10 @@ export function useMessages(polling: boolean) {
     queryFn: () => api<Message[]>('/messages'),
     refetchInterval: polling ? 4_000 : false,
   });
+}
+
+export function useTemplates() {
+  return useQuery({ queryKey: keys.templates, queryFn: () => api<MessageTemplate[]>('/messages/templates') });
 }
 
 export function useInfo(childId: number | undefined) {

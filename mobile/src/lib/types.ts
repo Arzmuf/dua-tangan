@@ -121,6 +121,10 @@ export type Report = {
   entries: RecordEntry[];
 };
 
+export type TemplateCategory = 'health' | 'schedule' | 'expenses' | 'check-in';
+
+export type MessageTemplate = { id: number; category: TemplateCategory; body: string; created_at: string };
+
 export type Counsellor = { id: number; name: string; title: string; focus: string; icon: string };
 
 export type SessionType = 'individual' | 'co-parenting' | 'child';

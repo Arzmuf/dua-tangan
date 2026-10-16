@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select, update
+from sqlalchemy.orm import Session
 
+from ..db import get_db
 from ..deps import Ctx, get_ctx, get_current_user
 from ..fmt import excerpt
-from ..models import Message, User, utcnow
-from ..schemas import MessageIn, MessageOut, ToneIn, ToneOut
+from ..models import Message, MessageTemplate, User, utcnow
+from ..schemas import MessageIn, MessageOut, TemplateIn, TemplateOut, ToneIn, ToneOut
 from ..serializers import message_out
 from ..services.record import log_event
 from ..services.tone import check_tone
@@ -67,3 +69,27 @@ def mark_read(ctx: Ctx = Depends(get_ctx)):
         .values(read_at=utcnow())
     )
     ctx.db.commit()
+
+
+@router.get("/templates", response_model=list[TemplateOut])
+def list_templates(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return db.scalars(
+        select(MessageTemplate).where(MessageTemplate.user_id == user.id).order_by(MessageTemplate.id)
+    ).all()
+
+
+@router.post("/templates", response_model=TemplateOut, status_code=status.HTTP_201_CREATED)
+def add_template(data: TemplateIn, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    template = MessageTemplate(user_id=user.id, category=data.category, body=data.body)
+    db.add(template)
+    db.commit()
+    return template
+
+
+@router.delete("/templates/{template_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_template(template_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    template = db.get(MessageTemplate, template_id)
+    if template is None or template.user_id != user.id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Template not found.")
+    db.delete(template)
+    db.commit()
