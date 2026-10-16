@@ -213,6 +213,47 @@ def test_message_templates_are_personal(client, parents):
     assert client.get("/messages/templates", headers=nadia).json() == []
 
 
+def test_booking_a_program(client, parents):
+    nadia, reza = parents["nadia"], parents["reza"]
+    programs = client.get("/programs", headers=nadia).json()
+    assert programs[0]["title"] == "Calm Co-Parenting Communication"  # the starter programs, soonest first
+    workshop = next(p for p in programs if p["format"] == "in-person")
+    assert (workshop["spots_left"], workshop["my_tickets"], workshop["host"]) == (16, 0, "Sekala Jiwa")
+    url = f"/programs/{workshop['id']}/book"
+
+    order = {"tickets": 2, "payment_method": "gopay", "accept_no_refunds": False}
+    assert client.post(url, json=order, headers=nadia).status_code == 400  # must accept: no refunds
+    res = client.post(url, json={**order, "accept_no_refunds": True}, headers=nadia)
+    assert res.status_code == 201, res.text
+    booking = res.json()
+    assert booking["amount"] == 500_000 and booking["code"].startswith("SJ-")
+    assert (booking["program"]["spots_left"], booking["program"]["my_tickets"]) == (14, 2)
+
+    # Bookings are personal, logged in the shared record, and final: there is nothing to cancel.
+    assert [b["code"] for b in client.get("/bookings", headers=nadia).json()] == [booking["code"]]
+    assert client.get("/bookings", headers=reza).json() == []
+    latest = client.get("/record", headers=reza).json()["entries"][0]["summary"]
+    assert latest.startswith("Event booked by Nadia — Helping Your Child Feel at Home in Two Homes")
+    assert client.delete(f"/bookings/{booking['id']}", headers=nadia).status_code in (404, 405)
+
+    with SessionLocal() as db:
+        db.execute(text("UPDATE programs SET capacity = 3 WHERE id = :id"), {"id": workshop["id"]})
+        db.commit()
+    res = client.post(url, json={**order, "accept_no_refunds": True}, headers=reza)
+    assert (res.status_code, res.json()["detail"]) == (409, "Only 1 spot left.")
+
+    free = next(p for p in programs if p["price"] == 0)
+    res = client.post(f"/programs/{free['id']}/book", json={**order, "accept_no_refunds": True}, headers=reza)
+    assert res.json()["amount"] == 0
+
+    with SessionLocal() as db:
+        db.execute(text("UPDATE programs SET starts_at = now() - interval '1 hour' WHERE id = :id"), {"id": free["id"]})
+        db.commit()
+    res = client.post(f"/programs/{free['id']}/book", json={**order, "accept_no_refunds": True}, headers=nadia)
+    assert res.status_code == 409
+    assert free["id"] not in [p["id"] for p in client.get("/programs", headers=nadia).json()]
+
+
 def test_hosted_database_urls_use_psycopg():
     neon = "postgresql://app:pw@ep-calm-1.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
     assert Settings(database_url=neon).database_url == neon.replace("postgresql://", "postgresql+psycopg://")

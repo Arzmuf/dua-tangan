@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from . import schemas
 from .deps import Ctx
-from .models import Event, Expense, Family, Message, RecordEntry, User, utcnow
+from .models import Booking, Event, Expense, Family, Message, Program, RecordEntry, User, utcnow
 
 # A handoff can be checked in from 3 hours before it starts until a day after.
 CHECK_IN_OPENS = timedelta(hours=3)
@@ -152,4 +152,38 @@ def entry_out(r: RecordEntry) -> schemas.RecordEntryOut:
         created_at=r.created_at,
         hash=r.hash,
         actor=maybe_person(r.actor),
+    )
+
+
+def program_out(p: Program, user_id: int | None = None) -> schemas.ProgramOut:
+    return schemas.ProgramOut(
+        id=p.id,
+        title=p.title,
+        summary=p.summary,
+        description=p.description,
+        topic=p.topic,
+        format=p.format,
+        location=p.location,
+        starts_at=p.starts_at,
+        ends_at=p.starts_at + timedelta(minutes=p.duration_minutes),
+        duration_minutes=p.duration_minutes,
+        price=p.price,
+        capacity=p.capacity,
+        spots_left=p.spots_left,
+        host=p.host,
+        practitioner=schemas.PractitionerOut(name=p.practitioner_name, title=p.practitioner_title, bio=p.practitioner_bio),
+        is_published=p.is_published,
+        my_tickets=sum(b.tickets for b in p.bookings if b.user_id == user_id),
+    )
+
+
+def booking_out(b: Booking) -> schemas.BookingOut:
+    return schemas.BookingOut(
+        id=b.id,
+        code=b.code,
+        tickets=b.tickets,
+        amount=b.amount,
+        payment_method=b.payment_method,
+        created_at=b.created_at,
+        program=program_out(b.program, b.user_id),
     )

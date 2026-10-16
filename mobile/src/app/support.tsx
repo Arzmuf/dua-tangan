@@ -16,7 +16,8 @@ import { Text } from '@/components/Text';
 import { post } from '@/lib/api';
 import { day } from '@/lib/format';
 import { useLastShown } from '@/lib/hooks';
-import { useAction, useCounsellors, useSupportRequests } from '@/lib/queries';
+import { BookingRow, ProgramCard, SekalaJiwaPartner } from '@/features/programs';
+import { useAction, useBookings, useCounsellors, usePrograms, useSupportRequests } from '@/lib/queries';
 import type { Counsellor, SessionType, SupportRequest } from '@/lib/types';
 import { colors } from '@/theme';
 
@@ -29,6 +30,8 @@ const SESSION_LABELS: Record<SessionType, string> = {
 export default function SupportScreen() {
   const { data: counsellors, isLoading } = useCounsellors();
   const { data: requests } = useSupportRequests();
+  const { data: programs, isLoading: loadingPrograms } = usePrograms();
+  const { data: bookings } = useBookings();
   const [booking, setBooking] = useState<Counsellor | null>(null);
 
   return (
@@ -44,6 +47,37 @@ export default function SupportScreen() {
           />
         }
       >
+        <SekalaJiwaPartner />
+
+        <SectionTitle>Upcoming events</SectionTitle>
+        {loadingPrograms ? (
+          <View style={{ height: 160 }}>
+            <Loading />
+          </View>
+        ) : programs?.length ? (
+          <View style={styles.list}>
+            {programs.map((p) => (
+              <ProgramCard key={p.id} program={p} />
+            ))}
+          </View>
+        ) : (
+          <Text variant="small" color={colors.inkMuted}>
+            New talks and workshops are posted here. Check back soon.
+          </Text>
+        )}
+
+        {bookings?.length ? (
+          <>
+            <SectionTitle>Your bookings</SectionTitle>
+            <View style={styles.list}>
+              {bookings.map((b) => (
+                <BookingRow key={b.id} booking={b} />
+              ))}
+            </View>
+          </>
+        ) : null}
+
+        <SectionTitle>Counsellors</SectionTitle>
         <Card color={colors.primarySoft} style={styles.free}>
           <Text style={{ fontSize: 26, lineHeight: 32 }}>🎁</Text>
           <View style={{ flex: 1 }}>
@@ -53,8 +87,6 @@ export default function SupportScreen() {
             </Text>
           </View>
         </Card>
-
-        <SectionTitle>Counsellors</SectionTitle>
         {isLoading ? (
           <View style={{ height: 160 }}>
             <Loading />
@@ -152,7 +184,7 @@ function BookForm({ counsellor, onSent }: { counsellor: Counsellor; onSent: () =
 }
 
 const styles = StyleSheet.create({
-  free: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 18 },
+  free: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 12 },
   list: { gap: 12 },
   request: { flexDirection: 'row', alignItems: 'center', gap: 12 },
 });

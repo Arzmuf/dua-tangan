@@ -140,6 +140,39 @@ export type SupportRequest = {
   requested_by: Person;
 };
 
+export type ProgramTopic = 'co-parenting' | 'child-wellbeing' | 'communication' | 'self-care';
+export type PaymentMethod = 'card' | 'gopay' | 'ovo' | 'bank-transfer';
+
+export type Program = {
+  id: number;
+  title: string;
+  summary: string;
+  description: string;
+  topic: ProgramTopic;
+  format: 'online' | 'in-person';
+  location: string;
+  starts_at: string;
+  ends_at: string;
+  duration_minutes: number;
+  price: number;
+  capacity: number;
+  spots_left: number;
+  host: string;
+  practitioner: { name: string; title: string; bio: string };
+  is_published: boolean;
+  my_tickets: number;
+};
+
+export type Booking = {
+  id: number;
+  code: string;
+  tickets: number;
+  amount: number;
+  payment_method: PaymentMethod;
+  created_at: string;
+  program: Program;
+};
+
 export type Home = {
   partner: Person | null;
   children: Child[];

@@ -4,6 +4,7 @@ import { useToast } from '@/components/Toast';
 import { useAuth } from './auth';
 import { api } from './api';
 import type {
+  Booking,
   Counsellor,
   ExpensesResponse,
   Family,
@@ -12,6 +13,7 @@ import type {
   InfoItem,
   Message,
   MessageTemplate,
+  Program,
   RecordResponse,
   SupportRequest,
 } from './types';
@@ -27,6 +29,9 @@ export const keys = {
   family: ['family'] as const,
   counsellors: ['counsellors'] as const,
   supportRequests: ['support-requests'] as const,
+  programs: ['programs'] as const,
+  program: (id: number) => ['programs', id] as const,
+  bookings: ['bookings'] as const,
 };
 
 /** Queries that need a family only run once the signed-in parent has one. */
@@ -89,6 +94,18 @@ export function useCounsellors() {
 
 export function useSupportRequests() {
   return useQuery({ queryKey: keys.supportRequests, queryFn: () => api<SupportRequest[]>('/support/requests') });
+}
+
+export function usePrograms() {
+  return useQuery({ queryKey: keys.programs, queryFn: () => api<Program[]>('/programs') });
+}
+
+export function useProgram(id: number) {
+  return useQuery({ queryKey: keys.program(id), queryFn: () => api<Program>(`/programs/${id}`) });
+}
+
+export function useBookings() {
+  return useQuery({ queryKey: keys.bookings, queryFn: () => api<Booking[]>('/bookings') });
 }
 
 /**

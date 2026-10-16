@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .db import SessionLocal
 from .migrate import migrate
-from .routers import auth, events, expenses, family, home, info, messages, record, support
+from .routers import auth, events, expenses, family, home, info, messages, programs, record, support
 from .seed import ensure_counsellors, seed_demo_if_empty
 
 
@@ -29,7 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for module in (auth, family, home, events, expenses, messages, info, record, support):
+for module in (auth, family, home, events, expenses, messages, info, record, support, programs):
     app.include_router(module.router)
 
 

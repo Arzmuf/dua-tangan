@@ -322,6 +322,75 @@ class SupportRequestOut(Out):
     requested_by: Person
 
 
+# --- programs & bookings ---------------------------------------------------------------------
+
+ProgramTopic = Literal["co-parenting", "child-wellbeing", "communication", "self-care"]
+ProgramFormat = Literal["online", "in-person"]
+PaymentMethod = Literal["card", "gopay", "ovo", "bank-transfer"]
+
+
+class PractitionerOut(Out):
+    name: str
+    title: str
+    bio: str
+
+
+class ProgramOut(Out):
+    id: int
+    title: str
+    summary: str
+    description: str
+    topic: ProgramTopic
+    format: ProgramFormat
+    location: str
+    starts_at: datetime
+    ends_at: datetime
+    duration_minutes: int
+    price: int
+    capacity: int
+    spots_left: int
+    host: str
+    practitioner: PractitionerOut
+    is_published: bool
+    my_tickets: int
+
+
+class ProgramIn(In):
+    """What an admin fills in to post or edit a program."""
+
+    title: str = Field(min_length=1, max_length=160)
+    summary: str = Field(min_length=1, max_length=300)
+    description: str = Field(min_length=1, max_length=5000)
+    topic: ProgramTopic
+    format: ProgramFormat
+    location: str = Field(min_length=1, max_length=200)
+    starts_at: datetime
+    duration_minutes: int = Field(ge=15, le=600)
+    price: int = Field(ge=0, le=100_000_000)
+    capacity: int = Field(ge=1, le=10_000)
+    host: str = Field(default="Sekala Jiwa", min_length=1, max_length=120)
+    practitioner_name: str = Field(min_length=1, max_length=120)
+    practitioner_title: str = Field(min_length=1, max_length=160)
+    practitioner_bio: str = Field(min_length=1, max_length=1000)
+    is_published: bool = True
+
+
+class BookingIn(In):
+    tickets: int = Field(ge=1, le=4)
+    payment_method: PaymentMethod
+    accept_no_refunds: bool
+
+
+class BookingOut(Out):
+    id: int
+    code: str
+    tickets: int
+    amount: int
+    payment_method: PaymentMethod
+    created_at: datetime
+    program: ProgramOut
+
+
 # --- home ------------------------------------------------------------------------------------
 
 

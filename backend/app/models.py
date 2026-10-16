@@ -227,3 +227,57 @@ class MessageTemplate(Base):
     category: Mapped[str] = mapped_column(String(24))
     body: Mapped[str] = mapped_column(String(500))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Program(Base):
+    """A talk, webinar or workshop that parents can book: posted by an admin, run by a practitioner."""
+
+    __tablename__ = "programs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(160))
+    summary: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str] = mapped_column(Text)
+    topic: Mapped[str] = mapped_column(String(24))
+    format: Mapped[str] = mapped_column(String(16))  # "online" or "in-person"
+    location: Mapped[str] = mapped_column(String(200))  # the venue, or how to join online
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    duration_minutes: Mapped[int] = mapped_column(Integer, default=90)
+    price: Mapped[int] = mapped_column(BigInteger, default=0)  # whole rupiah per ticket; 0 is free
+    capacity: Mapped[int] = mapped_column(Integer, default=30)
+    host: Mapped[str] = mapped_column(String(120), default="Sekala Jiwa")
+    practitioner_name: Mapped[str] = mapped_column(String(120))
+    practitioner_title: Mapped[str] = mapped_column(String(160))
+    practitioner_bio: Mapped[str] = mapped_column(String(1000))
+    is_published: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+    bookings: Mapped[list[Booking]] = relationship(back_populates="program")
+
+    @property
+    def tickets_sold(self) -> int:
+        return sum(b.tickets for b in self.bookings)
+
+    @property
+    def spots_left(self) -> int:
+        return max(self.capacity - self.tickets_sold, 0)
+
+
+class Booking(Base):
+    """A booked place on a program. Payment is mocked for now, and every booking is final."""
+
+    __tablename__ = "bookings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    program_id: Mapped[int] = mapped_column(ForeignKey("programs.id"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    code: Mapped[str] = mapped_column(String(12), unique=True)
+    tickets: Mapped[int] = mapped_column(Integer)
+    amount: Mapped[int] = mapped_column(BigInteger)  # total paid, whole rupiah
+    payment_method: Mapped[str] = mapped_column(String(24))
+    payment_ref: Mapped[str] = mapped_column(String(40))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    program: Mapped[Program] = relationship(back_populates="bookings")
+    user: Mapped[User] = relationship()
