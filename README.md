@@ -105,6 +105,20 @@ Backend settings live in `backend/.env`; see `backend/.env.example`.
 | `SEED_DEMO` | `true` | Create the demo family when the database is empty |
 | `DEMO_TIME_ZONE` | this machine's zone | Time zone of the demo family, e.g. `Asia/Jakarta` |
 
+## Put it online
+
+`render.yaml` deploys the API and the web app to [Render](https://render.com) for free, with the database on [Neon](https://neon.tech). Render's own free database is deleted after 30 days.
+
+1. On Neon, create a project in the Singapore region, next to the API. Open **Connect**, turn off connection pooling, and copy the connection string.
+2. On Render, choose **New → Blueprint**, pick this repo, and paste the Neon string as `DATABASE_URL`, unchanged.
+3. The web app is served at `https://dua-tangan.onrender.com` and the API at `https://dua-tangan-api.onrender.com`. If Render gives the API another address, update `EXPO_PUBLIC_API_URL` in `render.yaml`.
+
+Render's free API sleeps after 15 minutes without traffic, so the next visit waits about a minute while it wakes up. To reset the hosted demo, run the seed from your computer against Neon:
+
+```bash
+cd backend && DATABASE_URL='<neon connection string>' python -m app.seed --reset
+```
+
 ## Tests and checks
 
 ```bash

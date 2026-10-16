@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,6 +15,15 @@ class Settings(BaseSettings):
     seed_demo: bool = True
     # IANA zone for the demo family, e.g. "Asia/Jakarta". Defaults to this machine's zone.
     demo_time_zone: str | None = None
+
+    @field_validator("database_url")
+    @classmethod
+    def use_psycopg(cls, url: str) -> str:
+        # Hosts such as Neon hand out postgres:// or postgresql:// URLs; SQLAlchemy needs the psycopg 3 driver named.
+        for scheme in ("postgres://", "postgresql://"):
+            if url.startswith(scheme):
+                return "postgresql+psycopg://" + url.removeprefix(scheme)
+        return url
 
 
 @lru_cache

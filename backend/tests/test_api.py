@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import text
 
+from app.config import Settings
 from app.db import SessionLocal, engine
 from app.seed import seed_demo
 from app.services.tone import check_tone
@@ -197,6 +198,14 @@ def test_tone_rules():
     assert check_tone("Why would you do that?!").tone == "heated"
     assert check_tone("Thanks!! See you Saturday").tone == "calm"
     assert check_tone("Kirana lagi males makan, tolong dicek ya").tone == "calm"
+
+
+def test_hosted_database_urls_use_psycopg():
+    neon = "postgresql://app:pw@ep-calm-1.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+    assert Settings(database_url=neon).database_url == neon.replace("postgresql://", "postgresql+psycopg://")
+    assert Settings(database_url="postgres://app:pw@db/app").database_url == "postgresql+psycopg://app:pw@db/app"
+    local = "postgresql+psycopg://duatangan:duatangan@localhost:5432/duatangan"
+    assert Settings(database_url=local).database_url == local
 
 
 def test_child_info_crud(client, parents):

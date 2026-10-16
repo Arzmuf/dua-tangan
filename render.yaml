@@ -1,0 +1,44 @@
+# Render Blueprint: the API as a free web service and the web app as a free static site.
+# The database is a free Neon Postgres (Render's free Postgres is deleted after 30 days). When Render
+# asks for DATABASE_URL, paste Neon's direct connection string, not the pooled one: the API sets the
+# connection time zone on connect, which poolers don't pass through.
+services:
+  - type: web
+    name: dua-tangan-api
+    runtime: python
+    plan: free
+    region: singapore
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.12
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DEMO_TIME_ZONE
+        value: Australia/Melbourne
+
+  - type: web
+    name: dua-tangan
+    runtime: static
+    # --clear: Metro's cache ignores EXPO_PUBLIC_* changes, so a cached build could keep an old API address.
+    buildCommand: cd mobile && npm ci && npx expo export -p web --clear
+    staticPublishPath: mobile/dist
+    buildFilter:
+      paths:
+        - mobile/**
+    routes:
+      # Expo Router resolves paths in the browser, so every page loads index.html.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      # Baked into the web build. Update it if Render gives the API a different address.
+      - key: EXPO_PUBLIC_API_URL
+        value: https://dua-tangan-api.onrender.com
